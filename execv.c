@@ -1,24 +1,22 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 int main()
 {
-    char cmd[]="ls";
+    char cmd[] = "./prog1";
 
-    char * argv[]={NULL};
-    char * argc[]={NULL};
+    char *argv[] = {cmd, NULL};
+    char *envp[] = {NULL};
 
     printf("---------The beginning of the original program---------\n");
-    if(execve(cmd,argv,argc)<0)
+
+    if (execve(cmd, argv, envp) < 0)
     {
-        printf("%s : Command not found\n",cmd);
-        exit(0);
+        perror("execve failed");
+        exit(1);
     }
 
-    printf("\n\nIf you reached here then smthn went wrong");
-
     return 0;
-
-
 }
+
