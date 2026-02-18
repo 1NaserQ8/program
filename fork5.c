@@ -1,10 +1,7 @@
-// your includes here.
 #include <stdio.h>
-
-// your global variables and defined functions here.
+#include <unistd.h>
 
 int main() {
-  // your declarations here.
   int a, b;
 
   printf("Enter the first integer: ");
@@ -12,7 +9,18 @@ int main() {
   printf("Enter the second integer: ");
   scanf("%d", &b);
 
-  // your code to compute the a+b in the parent and a-b in the child.
+   pid_t pid = fork();
+   if (pid < 0) {
+        printf("Fork failed!\n");
+        return 1;
+    }
+    else if (pid == 0) {
+        printf("Result %d - %d = %d\n", a, b, a - b);
+    }
+    else {
+        wait(NULL);
+        printf("Result %d + %d = %d\n", a, b, a + b);
+    }
 
   return 0;
 }
