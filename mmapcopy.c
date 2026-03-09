@@ -1,41 +1,80 @@
-       #include <sys/mman.h>
-       #include <sys/stat.h>
-       #include <fcntl.h>
-       #include <stdio.h>
-       #include <stdlib.h>
-       #include <unistd.h>
-       #include <sys/wait.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-       int main(int argc, char *argv[])
-       {
-           char *buffer;
-           int fd;
-           struct stat info;
-           size_t length;
-           ssize_t s;
-	       pid_t pid; 
-           int status;
-
-            // check if the file name passed as argument or exit if error
+int main(int argc, char *argv[])
+{
+    char *buffer;
+    int fd;
+    struct stat info;
+    size_t length;
+    pid_t pid;
+    int status;
     
-           // open the file here or exit if error
-           
-           if (fstat(fd, &info) == -1) {          
-               printf("%s empty", argv[1]);
-               exit(0);
-           }
-	       if ((pid = fork()) ==  0) { 
-
-		        printf("Child process\n");           	
-                // Child process copy the arbitrary-sized disk
-           	    // and check if an error occurs 
-           	    // child process write out the file content
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
+        exit(1);
+    }
+    
+    fd = open(argv[1], O_RDONLY);
+    if (fd == -1) {
+        perror("open");
+        exit(1);
+    }
+    
+    if (fstat(fd, &info) == -1) {
+        perror("fstat");
+        close(fd);
+        exit(1);
+    }
+    
+    if (info.st_size == 0) {
+        fprintf(stderr, "%s is empty\n", argv[1]);
+        close(fd);
+        exit(1);
+    }
+    
+    length = info.st_size;
+    
+    pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        close(fd);
+        exit(1);
+    }
+    
+    if (pid == 0) {
+        printf("Child process\n");
         
-            	printf("CP: done\n");
-        	    exit(1);
-            }
-            printf("Parent process\n");  
-	        // parent wait
-	        printf("PP: done\n");
+        buffer = mmap(NULL, length, PROT_READ, MAP_PRIVATE, fd, 0);
+        if (buffer == MAP_FAILED) {
+            perror("mmap");
+            close(fd);
             exit(1);
         }
+        
+        if (write(STDOUT_FILENO, buffer, length) == -1) {
+            perror("write");
+            munmap(buffer, length);
+            close(fd);
+            exit(1);
+        }
+        
+        munmap(buffer, length);
+        close(fd);
+        
+        printf("\nCP: done\n");
+        exit(0);
+    }
+    
+    printf("Parent process\n");
+    wait(&status);
+    close(fd);
+    printf("PP: done\n");
+    
+    return 0;
+}
