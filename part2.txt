@@ -1,0 +1,15 @@
+IP Address
+Q9. gcc -g -o IPaddr IPaddr.c
+
+Q10. gdb ./IPaddr
+(gdb) break inet_ntop
+(gdb) run 52EF410F
+(gdb) print argv[1]         # "52EF410F"
+(gdb) print inaddr.s_addr   # 0x0F41EF52
+(gdb) print buf             # "82.239.65.15"
+
+Q11. 
+a.	converts a 32-bit integer from host byte order (little-endian) to network byte order (big-endian)
+b.	. x86 machines are little-endian but network protocols require big-endian. htonl ensures the bytes are ordered correctly so inet_ntop interprets the address properly.
+c.	The buffer holds the dotted-decimal string of the IP address: 82.239.65.15 — the human-readable form of hex 52EF410F
+
