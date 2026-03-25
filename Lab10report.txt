@@ -1,0 +1,39 @@
+Q1.
+a. 2 network interfaces exist.
+b. Names: lo and eth0
+
+Q2. ip address show
+a.	lo → 127.0.0.1/8
+eth0 → 10.0.2.15/24
+
+Q3. cat /etc/hosts
+a.	The first IP address 127.0.0.1 corresponds to localhost — the loopback address that refers to the machine itself.
+
+
+
+
+Q4. cat /etc/services > Lab10.txt
+a.	Three famous services
+SSH  22  TCP
+HTTP 80  TCP
+HTTPS  443 TCP
+
+ Q5. nslookup
+a. nslookup ku.edu.kw → IP: 195.149.228.163
+b. google.com returns multiple IP addresses due to load balancing, while ku.edu.kw returns a single IP. Google also shows non-authoritative answers from multiple servers.
+
+Q6. 
+hostname        # shows machine hostname
+hostname -I     # shows all IP addresses
+hostname -f     # shows fully qualified domain name
+hostname -s     # shows short hostname
+
+Q7.
+Hex Address	Dotted-decimal Address
+0x6BD47ACD	107.212.122.205
+0x0A010184	10.1.1.132
+0x5D412D63	93.65.45.99
+0x0A010140	10.1.1.64
+0xEFFC1B2A	239.252.27.42
+0x0145FF74	1.69.255.116
+
