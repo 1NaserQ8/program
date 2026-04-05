@@ -4,7 +4,6 @@
 #include "csapp.h"
 
 #define MAX_PLAYERS 5
-#define REQUIRED_PLAYERS 2
 
 typedef struct {
 	int fd;
