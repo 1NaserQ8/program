@@ -70,7 +70,7 @@ int main(int argc, char **argv)
             }
 
             /* start game when enough players */
-            if (player_count == REQUIRED_PLAYERS) {
+            if (player_count >= REQUIRED_PLAYERS) {
 
 		pid = Fork();
 		if(pid == 0){
