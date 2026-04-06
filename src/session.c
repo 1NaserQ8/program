@@ -2,6 +2,8 @@
 #include <string.h>
 #include "csapp.h"
 #include "session.h"
+#include "game.h"
+#include "questions.h"
 
 void run_game_session(Player players[], int player_count, Question questions[], int num_q){
         rio_t rios[MAX_PLAYERS];
@@ -9,15 +11,13 @@ void run_game_session(Player players[], int player_count, Question questions[], 
         int i,q;
 
         for (i=0 ; i < player_count; i++){
-                Rio_readlineb(&rios[i], players[i].fd, MAXLINE);
+                Rio_readinitb(&rios[i], players[i].fd);
+		players[i].score =0;
         }
-
-        printf("Game session started with %d players\n", player_count);
-
 
         for(q = 0; q < num_q; q++){
 
-                send_question(players, player_count, &questionsp[q]); // Ali
+                send_question(players, player_count, &questions[q]);
                 for (i=0 ; i < player_count ; i++){
                         ssize_t n = Rio_readlineb(&rios[i], buffer, MAXLINE);
 
@@ -30,11 +30,10 @@ void run_game_session(Player players[], int player_count, Question questions[], 
 
                         printf("Recived from %s: %s\n", players[i].nickname, buffer);
 
-                        handle_player_answer(players, i, buffer); // Ali and Naser
+                        handle_player_answer(players, i, buffer, &questions[q]);
                 }
-                announce_winner(players, player_count); // Naser
+	}
 
-                printf("Game session ended\n");
-
-        }
+                announce_winner(players, player_count); 
+		printf("Game session ended\n");
 }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "questions.h"
+#include "session.h"
 
 static void trim_newline(char *s) {
     size_t len;

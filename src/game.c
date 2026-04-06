@@ -4,6 +4,7 @@
 #include "csapp.h"
 #include "game.h"
 #include "questions.h"
+#include "session.h"
 
 void send_question(Player players[], int count, Question *q)
 {
@@ -57,28 +58,4 @@ void announce_winner(Player players[], int count)
     for (int i = 0; i < count; i++) {
         Rio_writen(players[i].fd, msg, strlen(msg));
     }
-}
-
-void run_game_session(Player players[], int count, Question questions[], int num_q)
-{
-    rio_t rios[MAX_PLAYERS];
-    char buf[MAXLINE];
-
-    for (int i = 0; i < count; i++) {
-        Rio_readinitb(&rios[i], players[i].fd);
-        players[i].score = 0;
-    }
-
-    for (int q = 0; q < num_q; q++) {
-        send_question(players, count, &questions[q]);
-
-        for (int i = 0; i < count; i++) {
-            if (Rio_readlineb(&rios[i], buf, MAXLINE) <= 0) {
-                return;
-            }
-            handle_player_answer(players, i, buf, &questions[q]);
-        }
-    }
-
-    announce_winner(players, count);
 }

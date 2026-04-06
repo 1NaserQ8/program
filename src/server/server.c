@@ -14,12 +14,11 @@ int main(int argc, char **argv)
     char nickname[MAXLINE];
 
     Player players[MAX_PLAYERS];
-    Question *questions[3];
+    Question *questions;
     int player_count = 0;
     int num_q = 0;
 
     pid_t pid;
-    int i;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <port>\n", argv[0]);
@@ -71,7 +70,8 @@ int main(int argc, char **argv)
             }
 
             /* start game when enough players */
-            if (player_count >= REQUIRED_PLAYERS) {
+            if (player_count == REQUIRED_PLAYERS) {
+
 		pid = Fork();
 		if(pid == 0){
 			close(listenfd);
