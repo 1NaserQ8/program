@@ -59,7 +59,7 @@ int main(int argc, char **argv)
             printf("%s joined the lobby\n", nickname);
 
             /* add player */
-            if (player_count < MAX_PLAYER) {
+            if (player_count < MAX_PLAYERS) {
                 players[player_count].fd = connfd;
                 strcpy(players[player_count].nickname, nickname);
                 players[player_count].score = 0;
