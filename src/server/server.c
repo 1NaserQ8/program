@@ -3,6 +3,7 @@
 #include "csapp.h"
 #include "game.h"
 #include "questions.h"
+#include "session.h"
 
 int main(int argc, char **argv)
 {
@@ -13,9 +14,12 @@ int main(int argc, char **argv)
     char nickname[MAXLINE];
 
     Player players[MAX_PLAYERS];
-    Question *questions;
+    Question *questions[3];
     int player_count = 0;
     int num_q = 0;
+
+    pid_t pid;
+    int i;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <port>\n", argv[0]);
@@ -55,7 +59,7 @@ int main(int argc, char **argv)
             printf("%s joined the lobby\n", nickname);
 
             /* add player */
-            if (player_count < MAX_PLAYERS) {
+            if (player_count < MAX_PLAYER) {
                 players[player_count].fd = connfd;
                 strcpy(players[player_count].nickname, nickname);
                 players[player_count].score = 0;
@@ -68,15 +72,24 @@ int main(int argc, char **argv)
 
             /* start game when enough players */
             if (player_count >= REQUIRED_PLAYERS) {
+		pid = Fork();
+		if(pid == 0){
+			close(listenfd);
 
-                run_game_session(players, player_count, questions, num_q);
+                	run_game_session(players, player_count, questions, num_q);
 
-                for (int i = 0; i < player_count; i++) {
-                    Close(players[i].fd);
-                }
+			exit(0);
+		
+		}else{
+			waitpid(pid,NULL,0);
 
-                player_count = 0;
-                printf("Game ended. Waiting for new players...\n");
+                	for (int i = 0; i < player_count; i++) {
+                    		Close(players[i].fd);
+                	}
+
+                	player_count = 0;
+                	printf("Game ended. Waiting for new players...\n");
+		}
             }
 
         } else {
