@@ -1,62 +1,77 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<sys/types.h>
-#include<netinet/in.h>
-#include<sys/socket.h>
-#include<netdb.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 int main(int argc, char **argv)
 {
-    char *msg="Hello from Server\n";
-    int listenfd,connfd,ret;
+    char *msg = "Hello from Server\n";
+    int listenfd, connfd, ret;
     struct addrinfo hints, *listp, *p;
-    struct sockaddr_storage *clientaddr;
+    struct sockaddr_storage clientaddr;
     socklen_t clientlen;
     char *port;
 
-    if(argc<2)
+    if (argc < 2)
     {
-        printf("usage: ./Myserver <port> \n");
-        exit(0);
+        printf("usage: ./seqserver <port>\n");
+        exit(1);
     }
-    memset(&hints, 0, sizeof(struct addrinfo));
 
-    hints.ai_socktype=SOCK_STREAM;
-    hints.ai_flag=AI_PASSIVE | AI_ADDRCONFIG;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;
     hints.ai_flags |= AI_NUMERICSERV;
-    port=argv[1];
 
-    getaddrinfo(NULL, port, &hints, &listp);
+    port = argv[1];
 
-    for(p=listp; p; p=p->ai_next)
+    if (getaddrinfo(NULL, port, &hints, &listp) != 0)
     {
-        if((listenfd=socket(p->ai_family, p->ai_socktype, p->ai_protocol))<0)
-            continue; //socket failed, try next
-        if(bind(listenfd, p->ai_addr, p->addrlen)==0)
-            break;      //successd bind
-
-        close(listenfd);    //bind failed, try next
+        printf("getaddrinfo error\n");
+        exit(1);
     }
 
-    freeaddrinfo(listp);    //cleanup
-
-    ret=listen(listenfd,5);
-    if(ret<0)
+    for (p = listp; p != NULL; p = p->ai_next)
     {
-        printf("Listen: Error\n");
-        exit(0);
+        listenfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (listenfd < 0)
+            continue;
+
+        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0)
+            break;
+
+        close(listenfd);
     }
 
-    while(1)
+    freeaddrinfo(listp);
+
+    if (p == NULL)
     {
-        clientlen=sizeof(struct sockaddr_storage);
-        connfd=accept(listenfd, clientaddr, &clientlen);
-        if(connfd<0)
-            continue;   //connect faild
-        send(connfd,msg,strlen(msg),0);
-      
+        printf("bind error\n");
+        exit(1);
+    }
+
+    ret = listen(listenfd, 5);
+    if (ret < 0)
+    {
+        printf("listen error\n");
+        exit(1);
+    }
+
+    while (1)
+    {
+        clientlen = sizeof(clientaddr);
+        connfd = accept(listenfd, (struct sockaddr *)&clientaddr, &clientlen);
+        if (connfd < 0)
+            continue;
+
+        send(connfd, msg, strlen(msg), 0);
+        sleep(5);
         close(connfd);
     }
 
