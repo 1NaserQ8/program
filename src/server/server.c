@@ -3,7 +3,7 @@
 #include "csapp.h"
 #include "game.h"
 #include "questions.h"
-#include "session.h"
+#include "session.h"  //Abbas: I added my module in order to call run_game_session() function
 
 int main(int argc, char **argv)
 {
@@ -13,12 +13,12 @@ int main(int argc, char **argv)
     rio_t rio;
     char nickname[MAXLINE];
 
-    Player players[MAX_PLAYERS];
-    Question *questions;
-    int player_count = 0;
-    int num_q = 0;
+    Player players[MAX_PLAYERS]; //Abbas: This was implemented by Naser in game.h
+    Question *questions; //Abbas: Also implemented by Naser
+    int player_count = 0; //Abbas: created in order to count the players
+    int num_q = 0; //Abbas: initialized to hold the number of questions per game
 
-    pid_t pid;
+    pid_t pid; //Abbas: for holding the Fork() value for each child
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <port>\n", argv[0]);
@@ -71,25 +71,29 @@ int main(int argc, char **argv)
 
             /* start game when enough players */
             if (player_count >= REQUIRED_PLAYERS) {
+				
+				pid = Fork();
+				if(pid == 0){
+					close(listenfd);
 
-		pid = Fork();
-		if(pid == 0){
-			close(listenfd);
-
+					//Abbas: runing the game session per Child (client)
                 	run_game_session(players, player_count, questions, num_q);
 
-			exit(0);
+					exit(0);
 		
-		}else{
-			waitpid(pid,NULL,0);
+				}else{
 
+					//Abbas: Parent waits for the child to end their instructions
+					waitpid(pid,NULL,0); 
+
+					//Abbas: makes sure every initialized player is freed
                 	for (int i = 0; i < player_count; i++) {
                     		Close(players[i].fd);
                 	}
 
                 	player_count = 0;
                 	printf("Game ended. Waiting for new players...\n");
-		}
+				}
             }
 
         } else {
