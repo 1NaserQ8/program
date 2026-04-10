@@ -5,19 +5,24 @@
 #include "game.h"
 #include "questions.h"
 
+//Abbas: one game session at a time
 void run_game_session(Player players[], int player_count, Question questions[], int num_q){
         rio_t rios[MAX_PLAYERS];
         char buffer[MAXLINE];
         int i,q;
 
+		//Abbas: initializing players
         for (i=0 ; i < player_count; i++){
                 Rio_readinitb(&rios[i], players[i].fd);
-		players[i].score =0;
+				players[i].score =0;
         }
 
+		//Abbas: sending questions then reading answers then announcing the winner 
         for(q = 0; q < num_q; q++){
 
                 send_question(players, player_count, &questions[q]);
+
+				//Abbas: handling each player.
                 for (i=0 ; i < player_count ; i++){
                         ssize_t n = Rio_readlineb(&rios[i], buffer, MAXLINE);
 
