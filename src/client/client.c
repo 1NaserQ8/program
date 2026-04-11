@@ -5,6 +5,7 @@
 #include "csapp.h"
 #include "protocol.h"
 
+//Abbas: displaying fixed number of questions per game.
 void display_question(char *msg)
 {
     char temp[MAXLINE];
@@ -39,7 +40,7 @@ int main(int argc, char **argv)
     char *host, *port;
     char nickname[MAXLINE];
     char buf[MAXLINE];
-    char sendbuf[MAXLINE];
+    char sendbuf[MAXLINE]; //Abbas: for sending the player name and answers
     char answer[16];
     rio_t rio;
 
@@ -55,19 +56,22 @@ int main(int argc, char **argv)
     Rio_readinitb(&rio, clientfd);
 
     printf("Enter your nickname: ");
-    Fgets(nickname, MAXLINE, stdin);
+    Fgets(nickname, MAXLINE, stdin); //Abbas: Reading player's nickname
     nickname[strcspn(nickname, "\n")] = '\0';
 
     build_join(sendbuf, nickname);
     Rio_writen(clientfd, sendbuf, strlen(sendbuf));
 
+    //Abbas: 
     while (Rio_readlineb(&rio, buf, MAXLINE) > 0) {
         if (parse_type(buf) == MSG_QUESTION) {
             display_question(buf);
 
+            //Abbas: checking for taking answer from the user
             if (Fgets(answer, sizeof(answer), stdin) == NULL)
                 break;
 
+            //Abbas: taking answer and sending it to the server
             build_answer(sendbuf, toupper((unsigned char)answer[0]));
             Rio_writen(clientfd, sendbuf, strlen(sendbuf));
         } else {
