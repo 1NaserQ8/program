@@ -2,6 +2,7 @@
 #include <string.h>
 #include "protocol.h"
 
+//Abbas: Detect the message type from its text prefix
 MessageType parse_type(const char *msg) {
     if (!msg) return MSG_UNKNOWN;
 
@@ -18,14 +19,17 @@ MessageType parse_type(const char *msg) {
     return MSG_UNKNOWN;
 }
 
+//Abbas: Build a JOIN message for the client nickname
 void build_join(char *buffer, const char *name) {
     sprintf(buffer, "JOIN|%s\n", name);
 }
 
+//Abbas: Build an ANSWER message using one choice letter
 void build_answer(char *buffer, char ans) {
     sprintf(buffer, "ANSWER|%c\n", ans);
 }
 
+//Abbas: Build a QUESTION message with the question and four options
 void build_question(char *buffer,
                     const char *q,
                     const char *a,
