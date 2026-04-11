@@ -59,10 +59,10 @@ int main(int argc, char **argv)
     Fgets(nickname, MAXLINE, stdin); //Abbas: Reading player's nickname
     nickname[strcspn(nickname, "\n")] = '\0';
 
-    build_join(sendbuf, nickname);
+    build_join(sendbuf, nickname); //Abbas: it sends a buf and player nickname
     Rio_writen(clientfd, sendbuf, strlen(sendbuf));
 
-    //Abbas: 
+    //Abbas: Main client loop: receive server messages, display questions, read user answer, and send it back
     while (Rio_readlineb(&rio, buf, MAXLINE) > 0) {
         if (parse_type(buf) == MSG_QUESTION) {
             display_question(buf);
