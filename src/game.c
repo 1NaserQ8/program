@@ -6,6 +6,7 @@
 #include "questions.h"
 #include "session.h"
 
+//Abbas: Send one formatted question to all connected players
 void send_question(Player players[], int count, Question *q)
 {
     char msg[MAXLINE * 2];
@@ -23,6 +24,7 @@ void send_question(Player players[], int count, Question *q)
     }
 }
 
+//Abbas: Check the player's answer message and update score if correct
 void handle_player_answer(Player players[], int i, char *msg, Question *q)
 {
     if (strncmp(msg, "ANSWER|", 7) != 0)
@@ -35,6 +37,7 @@ void handle_player_answer(Player players[], int i, char *msg, Question *q)
     }
 }
 
+//Abbas: Find the highest score and send the final winner to all players
 void announce_winner(Player players[], int count)
 {
     int winner = 0;
