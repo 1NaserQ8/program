@@ -8,6 +8,7 @@
 #include "game.h"
 #include "questions.h"
 
+//Abbas: it runs single game session
 void run_game_session(Player players[], int count, Question questions[], int num_q);
 
 #endif
