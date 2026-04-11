@@ -5,6 +5,7 @@
 #include "questions.h"
 #include "session.h"
 
+//Abbas: Remove trailing newline characters from a string
 static void trim_newline(char *s) {
     size_t len;
     if (!s) return;
@@ -15,6 +16,7 @@ static void trim_newline(char *s) {
     }
 }
 
+//Abbas: Copy the value after a field prefix such as "Q: " or "A: "
 static void copy_value(char *dest, size_t size, const char *src, const char *prefix) {
     size_t prefix_len = strlen(prefix);
     if (strncmp(src, prefix, prefix_len) == 0) {
@@ -26,6 +28,7 @@ static void copy_value(char *dest, size_t size, const char *src, const char *pre
     }
 }
 
+//Abbas: Load all questions from the text file into dynamically allocated memory
 Question *load_questions(const char *filename, int *count) {
     FILE *fp;
     char line[512];
@@ -77,6 +80,7 @@ Question *load_questions(const char *filename, int *count) {
             q.correct_answer = '\0';
         }
 
+        //Abbas: Expand the array if more space is needed
         if (n >= capacity) {
             Question *tmp;
             capacity *= 2;
@@ -98,10 +102,12 @@ Question *load_questions(const char *filename, int *count) {
     return questions;
 }
 
+//Abbas: Free the dynamically allocated question array 
 void free_questions(Question *questions) {
     free(questions);
 }
 
+//Abbas: Compare a player's answer with the correct answer
 int check_answer(const Question *q, char ans) {
     if (!q) return 0;
     return toupper((unsigned char)ans) == q->correct_answer;
