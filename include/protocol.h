@@ -1,8 +1,10 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+//Abbas: Maximum message size for protocol communication 
 #define MAX_MSG_LEN 1024
 
+//Abbas: Supported message types used between client and server
 typedef enum {
     MSG_JOIN,
     MSG_QUESTION,
@@ -16,9 +18,16 @@ typedef enum {
     MSG_UNKNOWN
 } MessageType;
 
+//Abbas: Parse incoming message and determine its type
 MessageType parse_type(const char *msg);
+
+//Abbas: Build JOIN message for client nickname
 void build_join(char *buffer, const char *name);
+
+//Abbas: Build ANSWER message for player's choice
 void build_answer(char *buffer, char ans);
+
+//Abbas: Build QUESTION message with text and options 
 void build_question(char *buffer,
                     const char *q,
                     const char *a,
