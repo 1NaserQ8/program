@@ -37,28 +37,34 @@ void handle_player_answer(Player players[], int i, char *msg, Question *q)
     }
 }
 
-//Abbas: Find the highest score and send the final winner to all players
+//Abbas: Find the highest score and send the final winner(s) to all players
 void announce_winner(Player players[], int count)
 {
-    int winner = 0;
+    int best = 0;
     char msg[MAXLINE];
-    char short_name[128];
+    char names[MAXLINE];
+    int winners = 0;
 
     for (int i = 1; i < count; i++) {
-        if (players[i].score > players[winner].score) {
-            winner = i;
+        if (players[i].score > players[best].score)
+            best = i;
+    }
+
+    names[0] = '\0';
+    for (int i = 0; i < count; i++) {
+        if (players[i].score == players[best].score) {
+            if (names[0] != '\0')
+                strncat(names, ", ", sizeof(names) - strlen(names) - 1);
+            strncat(names, players[i].nickname, sizeof(names) - strlen(names) - 1);
+            winners++;
         }
     }
 
-    strncpy(short_name, players[winner].nickname, sizeof(short_name) - 1);
-    short_name[sizeof(short_name) - 1] = '\0';
+    if (winners > 1)
+        snprintf(msg, sizeof(msg), "RESULT|TIE|%s|%d\n", names, players[best].score);
+    else
+        snprintf(msg, sizeof(msg), "RESULT|WINNER|%s|%d\n", names, players[best].score);
 
-    snprintf(msg, sizeof(msg),
-             "RESULT|WINNER|%s|%d\n",
-             short_name,
-             players[winner].score);
-
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
         Rio_writen(players[i].fd, msg, strlen(msg));
-    }
 }
