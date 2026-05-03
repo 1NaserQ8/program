@@ -74,6 +74,12 @@ int main(int argc, char **argv)
             //Abbas: taking answer and sending it to the server
             build_answer(sendbuf, toupper((unsigned char)answer[0]));
             Rio_writen(clientfd, sendbuf, strlen(sendbuf));
+        } else if (strncmp(buf, "GAME|", 5) == 0) {
+            printf("%s", buf);
+            if (Fgets(answer, sizeof(answer), stdin) == NULL)
+                break;
+            build_answer(sendbuf, toupper((unsigned char)answer[0]));
+            Rio_writen(clientfd, sendbuf, strlen(sendbuf));
         } else {
             printf("%s", buf);
         }

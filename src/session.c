@@ -24,18 +24,30 @@ void run_game_session(Player players[], int player_count, Question questions[], 
 
 				//Abbas: handling each player.
                 for (i=0 ; i < player_count ; i++){
-                        ssize_t n = Rio_readlineb(&rios[i], buffer, MAXLINE);
+                        while (1) {
+                                ssize_t n = Rio_readlineb(&rios[i], buffer, MAXLINE);
 
-                        if(n<=0){
-                                printf("Player %s diconnected\n", players[i].nickname);
-                                continue;
+                                if(n<=0){
+                                        printf("Player %s diconnected\n", players[i].nickname);
+                                        break;
+                                }
+
+                                buffer[strcspn(buffer, "\n")] = '\0';
+
+                                printf("Recived from %s: %s\n", players[i].nickname, buffer);
+
+                                // Ali: Answers should be within the range [A - B - C - D]
+                                if (strncmp(buffer, "ANSWER|", 7) == 0) {
+                                        char ans = toupper((unsigned char)buffer[7]);
+                                        if (ans == 'A' || ans == 'B' || ans == 'C' || ans == 'D') {
+                                                handle_player_answer(players, i, buffer, &questions[q]);
+                                                break;
+                                        }
+                                }
+
+                                const char *err = "GAME|Please choose the right letter\n";
+                                Rio_writen(players[i].fd, (void *)err, strlen(err));
                         }
-
-                        buffer[strcspn(buffer, "\n")] = '\0';
-
-                        printf("Recived from %s: %s\n", players[i].nickname, buffer);
-
-                        handle_player_answer(players, i, buffer, &questions[q]);
                 }
 	}
 
