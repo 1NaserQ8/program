@@ -29,6 +29,7 @@ void *answer_reader_fn(void *arg) {
         if (n <= 0) {
             printf("Player %s disconnected\n", a->players[a->idx].nickname);
             pthread_mutex_lock(a->mtx);
+            a->players[a->idx].active = 0;
             a->connected[a->idx] = 0;
             (*a->answers_rem)--;
             int rem = *a->answers_rem;

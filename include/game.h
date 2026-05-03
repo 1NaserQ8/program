@@ -15,6 +15,7 @@ typedef struct {
     int fd;
     char nickname[MAXLINE];
     int score;
+    int active;
 } Player;
 
 //Abbas: Send a formatted question to all players

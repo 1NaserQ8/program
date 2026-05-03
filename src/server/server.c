@@ -33,7 +33,7 @@ void handle_sigint(int sig) {
               sizeof(SERVER_DISC_MSG) - 1);
     _exit(0);
 }
-void *player_monitor_fn(void *arg) {
+ void *player_monitor_fn(void *arg) {
     int fd = *(int *)arg;
     free(arg);
 
@@ -58,7 +58,6 @@ void *player_monitor_fn(void *arg) {
     pthread_mutex_unlock(&g_mtx);
     return NULL;
 }
-
 void *accept_fn(void *arg) {
     struct sockaddr_storage clientaddr;
     socklen_t clientlen;
@@ -92,6 +91,7 @@ void *accept_fn(void *arg) {
         g_players[g_player_count].fd = connfd;
         strcpy(g_players[g_player_count].nickname, buf);
         g_players[g_player_count].score = 0;
+        g_players[g_player_count].active = 1;
         g_player_count++;
         printf("%s joined the lobby\n", buf);
 
