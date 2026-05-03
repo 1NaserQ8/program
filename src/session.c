@@ -17,6 +17,7 @@ typedef struct {
     pthread_mutex_t *mtx;
     sem_t *all_done;
 } AnswerArg;
+
 void *answer_reader_fn(void *arg) {
     AnswerArg *a = (AnswerArg *)arg;
     char buffer[MAXLINE];

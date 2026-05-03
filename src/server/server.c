@@ -33,7 +33,7 @@ void handle_sigint(int sig) {
               sizeof(SERVER_DISC_MSG) - 1);
     _exit(0);
 }
- void *player_monitor_fn(void *arg) {
+void *player_monitor_fn(void *arg) {
     int fd = *(int *)arg;
     free(arg);
 
@@ -58,6 +58,7 @@ void handle_sigint(int sig) {
     pthread_mutex_unlock(&g_mtx);
     return NULL;
 }
+
 void *accept_fn(void *arg) {
     struct sockaddr_storage clientaddr;
     socklen_t clientlen;

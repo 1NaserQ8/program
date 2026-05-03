@@ -41,7 +41,11 @@ int server_dead = 0;
 pthread_mutex_t c_mtx = PTHREAD_MUTEX_INITIALIZER;
 sem_t c_sem;
 
-typedef struct { int clientfd; rio_t *rio; } ReaderArg;
+typedef struct {
+    int clientfd;
+    rio_t *rio;
+} ReaderArg;
+
 void *socket_reader_fn(void *arg) {
     ReaderArg *ra = (ReaderArg *)arg;
     char buf[MAXLINE];
