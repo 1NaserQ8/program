@@ -13,7 +13,7 @@ all: $(LIB) server client
 
 #Abbas: Build shared library from modular source files
 $(LIB): src/game.c src/questions.c src/session.c src/protocol.c src/csapp.c
-	$(CC) $(CFLAGS) -shared -o $(LIB) src/game.c src/questions.c src/session.c src/protocol.c src/csapp.c
+	$(CC) $(CFLAGS) -shared -o $(LIB) src/game.c src/questions.c src/session.c src/protocol.c src/csapp.c -lpthread
 
 #Abbas: Build server and link dynamically with shared library
 server: src/server/server.c $(LIB)

@@ -2,196 +2,206 @@
 #include <string.h>
 #include <time.h>
 #include <signal.h>
-#include <sys/select.h>
+#include <pthread.h>
 #include "csapp.h"
 #include "game.h"
 #include "questions.h"
-#include "session.h"  //Abbas: I added my module in order to call run_game_session() function
+#include "session.h"
 
 #define LOBBY_DURATION 60
-
 #define SERVER_DISC_MSG "SERVER|Disconnected\n"
+Player g_players[MAX_PLAYERS];
+int g_player_count = 0;
+int g_lobby_active = 0;
+int g_game_ready = 0;
+time_t g_lobby_start = 0;
+time_t g_last_tick = 0;
+int g_listenfd = -1;
+pthread_mutex_t g_mtx = PTHREAD_MUTEX_INITIALIZER;
+pthread_t g_accept_tid;
+pthread_t g_monitor_tids[MAX_PLAYERS];
+int g_monitor_count = 0;
 
-static Player *g_players = NULL;
-static int *g_player_count = NULL;
-
-static void handle_sigint(int sig) {
-    (void)sig;
-    if (g_players && g_player_count) {
-        for (int i = 0; i < *g_player_count; i++)
-            write(g_players[i].fd, SERVER_DISC_MSG, sizeof(SERVER_DISC_MSG) - 1);
-    }
+// Ali: send a message to every lobby player
+void broadcast_locked(const char *msg) {
+    for (int i = 0; i < g_player_count; i++)
+        Rio_writen(g_players[i].fd, (void *)msg, strlen(msg));
+}
+void handle_sigint(int sig) {
+    for (int i = 0; i < g_player_count; i++)
+        write(g_players[i].fd, SERVER_DISC_MSG,
+              sizeof(SERVER_DISC_MSG) - 1);
     _exit(0);
 }
+ void *player_monitor_fn(void *arg) {
+    int fd = *(int *)arg;
+    free(arg);
 
-// Ali: send a message to every player currently in the lobby
-static void broadcast(Player players[], int count, const char *msg) {
-    for (int i = 0; i < count; i++)
-        Rio_writen(players[i].fd, (void *)msg, strlen(msg));
-}                                                                        
+    char tmp;
+    recv(fd, &tmp, 1, MSG_PEEK);
+
+    pthread_mutex_lock(&g_mtx);
+    for (int i = 0; i < g_player_count; i++) {
+        if (g_players[i].fd == fd) {
+            printf("%s left the lobby\n", g_players[i].nickname);
+            Close(g_players[i].fd);
+            g_players[i] = g_players[g_player_count - 1];
+            g_player_count--;
+            break;
+        }
+    }
+    if (g_lobby_active && g_player_count < REQUIRED_PLAYERS) {
+        g_lobby_active = 0;
+        printf("Timer cancelled - not enough players\n");
+        broadcast_locked("INFO|Timer cancelled. Waiting for more players...\n");
+    }
+    pthread_mutex_unlock(&g_mtx);
+    return NULL;
+}
+void *accept_fn(void *arg) {
+    struct sockaddr_storage clientaddr;
+    socklen_t clientlen;
+    rio_t rio;
+    char buf[MAXLINE];
+
+    while (1) {
+        pthread_testcancel();
+        clientlen = sizeof(clientaddr);
+        int connfd = Accept(g_listenfd, (SA *)&clientaddr, &clientlen);
+        if (connfd < 0) continue;
+
+        Rio_readinitb(&rio, connfd);
+        if (Rio_readlineb(&rio, buf, MAXLINE) <= 0) {
+            Close(connfd);
+            continue;
+        }
+        buf[strcspn(buf, "\n")] = '\0';
+        if (strncmp(buf, "JOIN|", 5) == 0)
+            memmove(buf, buf + 5, strlen(buf + 5) + 1);
+
+        pthread_mutex_lock(&g_mtx);
+
+        if (g_game_ready || g_player_count >= MAX_PLAYERS) {
+            pthread_mutex_unlock(&g_mtx);
+            Rio_writen(connfd, "INFO|Server full\n", 17);
+            Close(connfd);
+            continue;
+        }
+
+        g_players[g_player_count].fd = connfd;
+        strcpy(g_players[g_player_count].nickname, buf);
+        g_players[g_player_count].score = 0;
+        g_player_count++;
+        printf("%s joined the lobby\n", buf);
+
+        char msg[MAXLINE];
+        snprintf(msg, sizeof(msg), "INFO|%s joined!\n", buf);
+        broadcast_locked(msg);
+
+        // Ali: Starting the timer and checking before the lobby starts / middle
+        if (g_player_count == REQUIRED_PLAYERS && !g_lobby_active) {
+            g_lobby_active = 1;
+            g_lobby_start = time(NULL);
+            g_last_tick = g_lobby_start;
+            broadcast_locked("INFO|2 players in lobby! Game starts in 60 seconds...\n");
+        } else if (!g_lobby_active) {
+            Rio_writen(connfd, "INFO|Waiting for more players to join...\n", 41);
+        }
+        int *fdp = malloc(sizeof(int));
+        *fdp = connfd;
+        pthread_create(&g_monitor_tids[g_monitor_count++], NULL, player_monitor_fn, fdp);
+
+        pthread_mutex_unlock(&g_mtx);
+    }
+    return NULL;
+}
 
 int main(int argc, char **argv)
 {
-    int listenfd, connfd;
-    socklen_t clientlen;
-    struct sockaddr_storage clientaddr;
-    rio_t rio;
-    char nickname[MAXLINE];
-
-    Player players[MAX_PLAYERS]; //Abbas: This was implemented by Naser in game.h
-    Question *questions; //Abbas: Also implemented by Naser
-    int player_count = 0; //Abbas: created in order to count the players
-    int num_q = 0; //Abbas: initialized to hold the number of questions per game
-
-    pid_t pid; //Abbas: for holding the Fork() value for each child
-
-    g_players = players;
-    g_player_count = &player_count; 
-    Signal(SIGINT, handle_sigint);
-
-    /* Ali: Variables for the timer */
-    int lobby_active = 0;
-    time_t lobby_start = 0;
-    time_t last_tick = 0;
+    Question *questions;
+    int num_q = 0;
+    pid_t pid;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <port>\n", argv[0]);
         exit(1);
     }
 
-    /* load questions */
     questions = load_questions("questions.txt", &num_q);
     if (!questions || num_q <= 0) {
         fprintf(stderr, "Failed to load questions.txt\n");
         exit(1);
     }
 
-    listenfd = Open_listenfd(argv[1]);
+    g_listenfd = Open_listenfd(argv[1]);
     printf("Server is listening on port %s...\n", argv[1]);
+    Signal(SIGINT, handle_sigint);
 
     while (1) {
-        // Ali: watching listenfd + every player fd
-        fd_set readfds;
-        FD_ZERO(&readfds);
-        FD_SET(listenfd, &readfds);
-        int maxfd = listenfd;
-        for (int i = 0; i < player_count; i++) {
-            FD_SET(players[i].fd, &readfds);
-            if (players[i].fd > maxfd) maxfd = players[i].fd;
-        }
+        pthread_mutex_lock(&g_mtx);
+        g_player_count = 0;
+        g_lobby_active = 0;
+        g_game_ready = 0;
+        g_lobby_start = 0;
+        g_last_tick = 0;
+        g_monitor_count = 0;
+        pthread_mutex_unlock(&g_mtx);
+        pthread_create(&g_accept_tid, NULL, accept_fn, NULL);
 
-        // Ali: so the timer would appear to the other players not only the new ones
-        struct timeval  tv  = {1, 0};
-        struct timeval *tvp = (lobby_active || player_count > 0) ? &tv : NULL;
+        // Ali: main thread runs the countdown
+        while (1) {
+            sleep(1);
 
-        if (select(maxfd + 1, &readfds, NULL, NULL, tvp) < 0) continue;
+            pthread_mutex_lock(&g_mtx);
 
-        // Ali: When a player disconnected
-        for (int i = 0; i < player_count; i++) {
-            if (!FD_ISSET(players[i].fd, &readfds)) continue;
-            char tmp[1];
-            if (recv(players[i].fd, tmp, 1, MSG_PEEK) <= 0) {
-                printf("%s left the lobby\n", players[i].nickname);
-                Close(players[i].fd); 
-                players[i] = players[player_count - 1];
-                player_count--; 
-                i--; 
+            if (g_game_ready) {
+                pthread_mutex_unlock(&g_mtx);
+                break;
             }
-        }
 
-        // Ali: cancel timer if the lobby dropped into 1 player only
-        if (lobby_active && player_count < REQUIRED_PLAYERS) {
-            lobby_active = 0;
-            printf("Timer cancelled - not enough players\n");
-            broadcast(players, player_count, "INFO|Timer cancelled. Waiting for more players...\n");
-        }
-
-        // Ali: accept a new player if someone just connected
-        if (FD_ISSET(listenfd, &readfds)) {
-            clientlen = sizeof(clientaddr);
-            connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
-            if (connfd >= 0) {
-                Rio_readinitb(&rio, connfd);
-                if (Rio_readlineb(&rio, nickname, MAXLINE) > 0) {
-
-                    /* remove newline */
-                    nickname[strcspn(nickname, "\n")] = '\0';
-
-                    /* support JOIN|name */
-                    if (strncmp(nickname, "JOIN|", 5) == 0)
-                        memmove(nickname, nickname + 5, strlen(nickname + 5) + 1);
-
-                    printf("%s joined the lobby\n", nickname);
-
-                    /* add player */
-                    if (player_count < MAX_PLAYERS) {
-                        players[player_count].fd    = connfd;
-                        strcpy(players[player_count].nickname, nickname);
-                        players[player_count].score = 0;
-                        player_count++;
-
-                        char join_msg[MAXLINE];
-                        snprintf(join_msg, sizeof(join_msg), "INFO|%s joined!\n", nickname);
-                        broadcast(players, player_count, join_msg);
-
-                        // Ali: Starting the timer and checking before the lobby starts / middle
-                        if (player_count == REQUIRED_PLAYERS && !lobby_active) {
-                            lobby_active = 1;
-                            lobby_start  = time(NULL);
-                            last_tick    = lobby_start;
-                            broadcast(players, player_count, "INFO|2 players in lobby! Game starts in 60 seconds...\n");
-                        } else if (lobby_active) {
-                            // Ali: We can do a something when the lobby is active [2 players and more already there]
-                        } else {
-                            const char *wait = "INFO|Waiting for more players to join...\n";
-                            Rio_writen(connfd, (void *)wait, strlen(wait));
-                        }
-
-                    } else {
-                        Rio_writen(connfd, "INFO|Server full\n", 17);
-                        Close(connfd);
-                    }
-
-                } else {
-                    Close(connfd);
-                }
+            if (!g_lobby_active) {
+                pthread_mutex_unlock(&g_mtx);
+                continue;
             }
-        }
-        
 
-        // Ali: countdown and game-start trigger
-        if (lobby_active) {
             time_t now = time(NULL);
-            int remaining = LOBBY_DURATION - (int)(now - lobby_start);
+            int remaining = LOBBY_DURATION - (int)(now - g_lobby_start);
 
-            if (remaining <= 0 || player_count == MAX_PLAYERS) {
-                broadcast(players, player_count, "INFO|Game is starting!\n");
-                lobby_active = 0;
-
-                pid = Fork();
-                if (pid == 0) {
-                    close(listenfd);
-                    //Abbas: runing the game session per Child (client)
-                    run_game_session(players, player_count, questions, num_q);
-                    exit(0);
-                } else {
-                    //Abbas: Parent waits for the child to end their instructions
-                    waitpid(pid, NULL, 0);
-                    //Abbas: makes sure every initialized player is freed
-                    for (int i = 0; i < player_count; i++)
-                        Close(players[i].fd);
-                    player_count = 0;
-                    printf("Game ended. Waiting for new players...\n");
-                }
+            if (remaining <= 0 || g_player_count == MAX_PLAYERS) {
+                broadcast_locked("INFO|Game is starting!\n");
+                g_game_ready = 1;
+                pthread_mutex_unlock(&g_mtx);
+                break;
+            }
 
             // Ali: print every 10s, but every second for the final 5
-            } else if (now != last_tick &&
-                       (remaining <= 5 || remaining % 10 == 0)) {
-                last_tick = now;
+            if (now != g_last_tick && (remaining <= 5 || remaining % 10 == 0)) {
+                g_last_tick = now;
                 char msg[MAXLINE];
                 snprintf(msg, sizeof(msg), "INFO|Game starts in %d seconds.\n", remaining);
-                broadcast(players, player_count, msg);
+                broadcast_locked(msg);
             }
+
+            pthread_mutex_unlock(&g_mtx);
+        }
+        pthread_cancel(g_accept_tid);
+        pthread_join(g_accept_tid, NULL);
+        for (int i = 0; i < g_monitor_count; i++) {
+            pthread_cancel(g_monitor_tids[i]);
+            pthread_join(g_monitor_tids[i], NULL);
+        }
+
+        // Abbas: Fork the game session as a child process
+        pid = Fork();
+        if (pid == 0) {
+            close(g_listenfd);
+            run_game_session(g_players, g_player_count, questions, num_q);
+            exit(0);
+        } else {
+            waitpid(pid, NULL, 0);
+            for (int i = 0; i < g_player_count; i++)
+                Close(g_players[i].fd);
+            printf("Game ended. Waiting for new players...\n");
         }
     }
 
