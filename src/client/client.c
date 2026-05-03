@@ -7,6 +7,16 @@
 #include "csapp.h"
 #include "protocol.h"
 
+#define ANSI_RESET "\033[0m"
+#define ANSI_BOLD "\033[1m"
+#define ANSI_RED "\033[1;31m"
+#define ANSI_GREEN "\033[1;32m"
+#define ANSI_YELLOW "\033[1;33m"
+#define ANSI_BLUE "\033[1;34m"
+#define ANSI_MAGENTA "\033[1;35m"
+#define ANSI_CYAN "\033[1;36m"
+#define ANSI_WHITE "\033[1;37m"
+
 //Abbas: displaying fixed number of questions per game.
 void display_question(char *msg)
 {
@@ -14,25 +24,83 @@ void display_question(char *msg)
     char *token;
 
     strcpy(temp, msg);
-
-    strtok(temp, "|");   /* QUESTION */
-
-    token = strtok(NULL, "|");
-    if (token) printf("\nQuestion: %s\n", token);
+    strtok(temp, "|");
 
     token = strtok(NULL, "|");
-    if (token) printf("A) %s\n", token);
+    if (token) printf("\n  " ANSI_BOLD ANSI_WHITE "❓ %s\n" ANSI_RESET, token);
 
     token = strtok(NULL, "|");
-    if (token) printf("B) %s\n", token);
+    if (token) printf("  " ANSI_CYAN "A) %s\n" ANSI_RESET, token);
 
     token = strtok(NULL, "|");
-    if (token) printf("C) %s\n", token);
+    if (token) printf("  " ANSI_GREEN "B) %s\n" ANSI_RESET, token);
 
     token = strtok(NULL, "|");
-    if (token) printf("D) %s\n", token);
+    if (token) printf("  " ANSI_YELLOW "C) %s\n" ANSI_RESET, token);
 
-    printf("Your answer: ");
+    token = strtok(NULL, "|");
+    if (token) printf("  " ANSI_MAGENTA "D) %s\n" ANSI_RESET, token);
+
+    printf("\n  " ANSI_BOLD "Your answer: " ANSI_RESET);
+    fflush(stdout);
+}
+
+static void print_server_msg(const char *buf) {
+    char tmp[MAXLINE];
+    strncpy(tmp, buf, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = '\0';
+    tmp[strcspn(tmp, "\n")] = '\0';
+
+    if (strncmp(tmp, "INFO|", 5) == 0) {
+        const char *content = tmp + 5;
+        if (strstr(content, "joined")) {
+            char name[MAXLINE];
+            char *p = strstr(content, " joined");
+            if (p) {
+                size_t len = (size_t)(p - content);
+                strncpy(name, content, len);
+                name[len] = '\0';
+                printf("  ✦  " ANSI_BLUE "%s" ANSI_RESET " " ANSI_GREEN "joined! \n" ANSI_RESET, name);
+            } else {
+                printf("  ✦  " ANSI_YELLOW "%s\n" ANSI_RESET, content);
+            }
+        } else if (strstr(content, "starting") || strstr(content, "Starting")) {
+            printf("\n  🎮 " ANSI_BOLD ANSI_YELLOW "%s\n\n" ANSI_RESET, content);
+        } else if (strstr(content, "seconds") || strstr(content, "starts in")) {
+            printf("  ⏰  " ANSI_CYAN "%s\n" ANSI_RESET, content);
+        } else if (strstr(content, "cancelled") || strstr(content, "full")) {
+            printf("  ⚠️  " ANSI_RED "%s\n" ANSI_RESET, content);
+        } else {
+            printf("  ⏳ " ANSI_YELLOW "%s\n" ANSI_RESET, content);
+        }
+    } else if (strncmp(tmp, "RESULT|WINNER|", 14) == 0) {
+        char inner[MAXLINE];
+        strncpy(inner, tmp + 14, sizeof(inner) - 1);
+        inner[sizeof(inner) - 1] = '\0';
+        char *sep = strrchr(inner, '|');
+        if (sep) {
+            *sep = '\0';
+            printf("\n  🏆 " ANSI_YELLOW "WINNER: " ANSI_BLUE "%s" ANSI_RESET
+                   " " ANSI_GREEN "(Score: %s) ✦\n\n" ANSI_RESET, inner, sep + 1);
+        } else {
+            printf("\n  🏆 " ANSI_YELLOW "%s\n\n" ANSI_RESET, inner);
+        }
+    } else if (strncmp(tmp, "RESULT|TIE|", 11) == 0) {
+        char inner[MAXLINE];
+        strncpy(inner, tmp + 11, sizeof(inner) - 1);
+        inner[sizeof(inner) - 1] = '\0';
+        char *sep = strrchr(inner, '|');
+        if (sep) {
+            *sep = '\0';
+            printf("\n  🤝 " ANSI_YELLOW "TIE: " ANSI_BLUE "%s" ANSI_RESET
+                   " " ANSI_GREEN "(Score: %s) ✦\n\n" ANSI_RESET, inner, sep + 1);
+        } else {
+            printf("\n  🤝 " ANSI_YELLOW "%s\n\n" ANSI_RESET, inner);
+        }
+    } else {
+        printf("%s\n", tmp);
+        fflush(stdout);
+    }
     fflush(stdout);
 }
 
@@ -41,11 +109,7 @@ int server_dead = 0;
 pthread_mutex_t c_mtx = PTHREAD_MUTEX_INITIALIZER;
 sem_t c_sem;
 
-typedef struct {
-    int clientfd;
-    rio_t *rio;
-} ReaderArg;
-
+typedef struct { int clientfd; rio_t *rio; } ReaderArg;
 void *socket_reader_fn(void *arg) {
     ReaderArg *ra = (ReaderArg *)arg;
     char buf[MAXLINE];
@@ -58,15 +122,16 @@ void *socket_reader_fn(void *arg) {
             pthread_mutex_unlock(&c_mtx);
             sem_post(&c_sem);
         } else if (strncmp(buf, "GAME|", 5) == 0) {
-            printf("%s", buf);
-            printf("Your answer: ");
+            printf("  ⚠️  " ANSI_RED "Invalid choice! Please pick "
+                   ANSI_BOLD "A, B, C, or D\n" ANSI_RESET);
+            printf("\n  " ANSI_BOLD " Your answer: " ANSI_RESET);
             fflush(stdout);
             pthread_mutex_lock(&c_mtx);
             need_answer = 1;
             pthread_mutex_unlock(&c_mtx);
             sem_post(&c_sem);
         } else if (strncmp(buf, "SERVER|", 7) == 0) {
-            printf("%s", buf);
+            printf("\n  🔴 " ANSI_RED "Server disconnected\n" ANSI_RESET);
             fflush(stdout);
             pthread_mutex_lock(&c_mtx);
             server_dead = 1;
@@ -75,8 +140,7 @@ void *socket_reader_fn(void *arg) {
             fclose(stdin);
             return NULL;
         } else {
-            printf("%s", buf);
-            fflush(stdout);
+            print_server_msg(buf);
         }
     }
     pthread_mutex_lock(&c_mtx);
