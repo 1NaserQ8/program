@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #include <sys/select.h>
 #include "csapp.h"
 #include "game.h"
@@ -8,6 +9,20 @@
 #include "session.h"  //Abbas: I added my module in order to call run_game_session() function
 
 #define LOBBY_DURATION 60
+
+#define SERVER_DISC_MSG "SERVER|Disconnected\n"
+
+static Player *g_players = NULL;
+static int *g_player_count = NULL;
+
+static void handle_sigint(int sig) {
+    (void)sig;
+    if (g_players && g_player_count) {
+        for (int i = 0; i < *g_player_count; i++)
+            write(g_players[i].fd, SERVER_DISC_MSG, sizeof(SERVER_DISC_MSG) - 1);
+    }
+    _exit(0);
+}
 
 // Ali: send a message to every player currently in the lobby
 static void broadcast(Player players[], int count, const char *msg) {
@@ -29,6 +44,10 @@ int main(int argc, char **argv)
     int num_q = 0; //Abbas: initialized to hold the number of questions per game
 
     pid_t pid; //Abbas: for holding the Fork() value for each child
+
+    g_players = players;
+    g_player_count = &player_count; 
+    Signal(SIGINT, handle_sigint);
 
     /* Ali: Variables for the timer */
     int lobby_active = 0;
