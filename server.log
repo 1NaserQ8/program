@@ -1,0 +1,51 @@
+[2026-05-04 07:31:26] === Server started ===
+[2026-05-04 07:31:26] server listening on port 8080
+[2026-05-04 07:31:26] room 1 watcher thread started
+[2026-05-04 07:31:26] room 2 watcher thread started
+[2026-05-04 07:33:20] Admin: shutdown confirmed - server exiting
+[2026-05-04 07:40:31] === Server started ===
+[2026-05-04 07:40:44] === Server started ===
+[2026-05-04 07:40:44] server listening on port 5000
+[2026-05-04 07:40:44] room 1 watcher thread started
+[2026-05-04 07:40:44] room 2 watcher thread started
+[2026-05-04 07:42:35] room 1: player 'Abbas' joined (1/4)
+[2026-05-04 07:42:57] room 1: player 'Naser' joined (2/4)
+[2026-05-04 07:42:57] room 1: lobby timer started
+[2026-05-04 07:43:57] room 1: game starting with 2 players
+[2026-05-04 07:43:57] room 1: game session started (child pid 74262)
+[2026-05-04 07:44:22] room 2: player 'Ali' joined (1/4)
+[2026-05-04 07:44:27] room 2: player 'Salm' joined (2/4)
+[2026-05-04 07:44:27] room 2: lobby timer started
+[2026-05-04 07:49:29] === Server started ===
+[2026-05-04 07:49:29] server listening on port 5000
+[2026-05-04 07:49:29] room 1 watcher thread started
+[2026-05-04 07:49:29] room 2 watcher thread started
+[2026-05-04 07:49:44] room 1: player 'Abbas' joined (1/4)
+[2026-05-04 07:49:50] room 1: player 'Ali' joined (2/4)
+[2026-05-04 07:49:50] room 1: lobby timer started
+[2026-05-04 07:50:50] room 1: game starting with 2 players
+[2026-05-04 07:50:50] room 1: game session started (child pid 74356)
+[2026-05-04 07:53:41] === Server started ===
+[2026-05-04 07:53:41] server listening on port 5000
+[2026-05-04 07:53:41] room 1 watcher thread started
+[2026-05-04 07:53:41] room 2 watcher thread started
+[2026-05-04 07:53:48] room 1: player 'Ali' joined (1/4)
+[2026-05-04 07:54:00] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 07:54:00] room 1: lobby timer started
+[2026-05-04 07:54:23] room 1: player 'Salem' joined (3/4)
+[2026-05-04 07:54:36] room 1: player 'Salem' disconnected
+[2026-05-04 07:55:00] room 1: game starting with 2 players
+[2026-05-04 07:55:00] room 1: game session started (child pid 74646)
+[2026-05-04 07:55:44] === Server started ===
+[2026-05-04 07:55:44] server listening on port 5000
+[2026-05-04 07:55:44] room 1 watcher thread started
+[2026-05-04 07:55:44] room 2 watcher thread started
+[2026-05-04 07:56:31] room 1: player 'Ali' joined (1/4)
+[2026-05-04 07:56:35] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 07:56:35] room 1: lobby timer started
+[2026-05-04 07:57:35] room 1: game starting with 2 players
+[2026-05-04 07:57:35] room 1: game session started (child pid 74917)
+[2026-05-04 07:57:39] room 1: player 'Ali' disconnected
+[2026-05-04 07:57:39] room 1: lobby timer cancelled (too few players)
+[2026-05-04 07:59:02] room 1: game session ended
+[2026-05-04 07:59:02] room 1: reset and ready for new players
