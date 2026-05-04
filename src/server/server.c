@@ -3,6 +3,7 @@
 #include <time.h>
 #include <signal.h>
 #include <pthread.h>
+#include <poll.h>
 #include "csapp.h"
 #include "game.h"
 #include "questions.h"
@@ -18,12 +19,18 @@
 /* ─────────────────────────────────────────────────────────────
    Global state
    ───────────────────────────────────────────────────────────── */
-Room            g_rooms[NUM_ROOMS];
-int             g_listenfd = -1;
-pthread_mutex_t g_mtx      = PTHREAD_MUTEX_INITIALIZER;
+Room g_rooms[NUM_ROOMS];
+int g_num_rooms = NUM_ROOMS;
+int g_listenfd = -1;
+pthread_mutex_t g_mtx = PTHREAD_MUTEX_INITIALIZER;
 
 //Abbas: admin.c reads server_running to know when to stop
 volatile int server_running = 1;
+
+/* Shared memory pointers set before fork so admin can read live scores */
+Player *g_session_players[NUM_ROOMS];
+int g_session_counts[NUM_ROOMS];
+pid_t g_game_pids[NUM_ROOMS];
 
 /* Per-room lobby countdown */
 int    g_lobby_active[NUM_ROOMS];
@@ -64,12 +71,25 @@ void *player_monitor_fn(void *arg) {
     int         fd       = ma->fd;
     free(ma);
 
-    /* Block until the player disconnects */
-    char tmp;
-    recv(fd, &tmp, 1, MSG_PEEK);
+    struct pollfd pfd = { .fd = fd, .events = POLLIN };
+    char  tmp;
+    ssize_t n;
+    do {
+        poll(&pfd, 1, -1);
+        n = recv(fd, &tmp, 1, MSG_PEEK);
+    } while (n > 0); /* n>0 means data arrived, not EOF - keep waiting */
 
     pthread_mutex_lock(&g_mtx);
     Room *room = &g_rooms[room_idx];
+
+    pthread_mutex_lock(&room->room_lock);
+    int game_running = room->is_running;
+    pthread_mutex_unlock(&room->room_lock);
+
+    if (game_running) {
+        pthread_mutex_unlock(&g_mtx);
+        return NULL;
+    }
 
     /* Find and remove the player */
     pthread_mutex_lock(&room->room_lock);
@@ -294,20 +314,36 @@ void *room_watcher_fn(void *arg) {
         pthread_mutex_unlock(&g_mtx);
 
         /* ── fork a child to run the game session ── */
+        Player *shared_p = mmap(NULL, MAX_PLAYERS_PER_ROOM * sizeof(Player),
+            PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        memcpy(shared_p, session_players, session_count * sizeof(Player));
+        pthread_mutex_lock(&g_mtx);
+        g_session_players[r] = shared_p;
+        g_session_counts[r] = session_count;
+        pthread_mutex_unlock(&g_mtx);
+
         pid_t pid = Fork();
         if (pid == 0) {
             /* Child: run the game, then exit */
             close(g_listenfd);
             log_event("room %d: game session started (child pid %d)",  //Abbas: log session start
                       g_rooms[r].room_id, (int)getpid());
-            run_game_session(session_players, session_count,
+            run_game_session(shared_p, session_count,
                              g_questions, g_num_q);
             exit(0);
         }
+        g_game_pids[r] = pid;
 
         /* Parent: wait for the game to finish */
         waitpid(pid, NULL, 0);
         log_event("room %d: game session ended", g_rooms[r].room_id);  //Abbas: log session end
+
+        pthread_mutex_lock(&g_mtx);
+        g_session_players[r] = NULL;
+        g_session_counts[r] = 0;
+        g_game_pids[r] = -1;
+        pthread_mutex_unlock(&g_mtx);
+        munmap(shared_p, MAX_PLAYERS_PER_ROOM * sizeof(Player));
 
         /* ── reset the room so new players can join ── */
         pthread_mutex_lock(&g_mtx);
@@ -353,6 +389,11 @@ int main(int argc, char **argv) {
     memset(g_game_ready,   0, sizeof(g_game_ready));
     memset(g_lobby_start,  0, sizeof(g_lobby_start));
     memset(g_last_tick,    0, sizeof(g_last_tick));
+    for (int i = 0; i < NUM_ROOMS; i++) {
+        g_session_players[i] = NULL;
+        g_session_counts[i] = 0;
+        g_game_pids[i] = -1;
+    }
 
     g_listenfd = Open_listenfd(argv[1]);
     printf("Server listening on port %s  "

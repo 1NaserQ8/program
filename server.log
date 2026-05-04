@@ -49,3 +49,85 @@
 [2026-05-04 07:57:39] room 1: lobby timer cancelled (too few players)
 [2026-05-04 07:59:02] room 1: game session ended
 [2026-05-04 07:59:02] room 1: reset and ready for new players
+[2026-05-04 08:04:44] === Server started ===
+[2026-05-04 08:04:44] server listening on port 3030
+[2026-05-04 08:04:44] room 1 watcher thread started
+[2026-05-04 08:04:44] room 2 watcher thread started
+[2026-05-04 08:04:50] room 1: player 'Ali' joined (1/4)
+[2026-05-04 08:05:00] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 08:05:00] room 1: lobby timer started
+[2026-05-04 08:11:40] === Server started ===
+[2026-05-04 08:11:40] server listening on port 3030
+[2026-05-04 08:11:40] room 1 watcher thread started
+[2026-05-04 08:11:40] room 2 watcher thread started
+[2026-05-04 08:11:46] Admin: list players
+[2026-05-04 08:11:51] Admin: list rooms
+[2026-05-04 08:12:18] room 1: player '' joined (1/4)
+[2026-05-04 08:12:23] room 1: player '' disconnected
+[2026-05-04 08:12:26] room 1: player 'Ali' joined (1/4)
+[2026-05-04 08:12:34] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 08:12:34] room 1: lobby timer started
+[2026-05-04 08:12:39] Admin: list rooms
+[2026-05-04 08:12:44] Admin: list players
+[2026-05-04 08:13:14] Admin: show scores
+[2026-05-04 08:13:34] room 1: game starting with 2 players
+[2026-05-04 08:13:34] room 1: game session started (child pid 2662350)
+[2026-05-04 08:13:36] room 1: player 'Ali' disconnected
+[2026-05-04 08:13:36] room 1: lobby timer cancelled (too few players)
+[2026-05-04 08:13:41] room 1: player 'Abbas' disconnected
+[2026-05-04 08:13:44] Admin: show scores
+[2026-05-04 08:14:03] Admin: list players
+[2026-05-04 08:19:29] Admin: shutdown confirmed - server exiting
+[2026-05-04 08:19:29] === Server stopped ===
+[2026-05-04 08:19:49] === Server started ===
+[2026-05-04 08:19:49] server listening on port 3030
+[2026-05-04 08:19:49] room 1 watcher thread started
+[2026-05-04 08:19:49] room 2 watcher thread started
+[2026-05-04 08:19:53] room 1: player 'Ali' joined (1/4)
+[2026-05-04 08:19:56] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 08:19:56] room 1: lobby timer started
+[2026-05-04 08:20:04] Admin: list players
+[2026-05-04 08:20:09] Admin: list rooms
+[2026-05-04 08:20:12] Admin: show scores
+[2026-05-04 08:20:56] room 1: game starting with 2 players
+[2026-05-04 08:20:56] room 1: game session started (child pid 2664764)
+[2026-05-04 08:21:12] Admin: show scores
+[2026-05-04 08:21:20] Admin: list players
+[2026-05-04 08:21:36] Admin: show scores
+[2026-05-04 08:21:39] Admin: list players
+[2026-05-04 08:21:51] Admin: shutdown confirmed - server exiting
+[2026-05-04 08:21:51] === Server stopped ===
+[2026-05-04 08:35:36] === Server started ===
+[2026-05-04 08:35:36] server listening on port 3030
+[2026-05-04 08:35:36] room 1 watcher thread started
+[2026-05-04 08:35:36] room 2 watcher thread started
+[2026-05-04 08:35:41] room 1: player 'Ali' joined (1/4)
+[2026-05-04 08:35:48] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 08:35:48] room 1: lobby timer started
+[2026-05-04 08:35:57] Admin: list players
+[2026-05-04 08:36:00] Admin: show scores
+[2026-05-04 08:36:03] Admin: list rooms
+[2026-05-04 08:36:48] room 1: game starting with 2 players
+[2026-05-04 08:36:48] room 1: game session started (child pid 2669530)
+[2026-05-04 08:36:59] Admin: show scores
+[2026-05-04 08:37:02] Admin: list players
+[2026-05-04 08:37:11] Admin: shutdown confirmed - server exiting
+[2026-05-04 08:37:11] === Server stopped ===
+[2026-05-04 08:46:27] === Server started ===
+[2026-05-04 08:46:27] server listening on port 3030
+[2026-05-04 08:46:27] room 1 watcher thread started
+[2026-05-04 08:46:27] room 2 watcher thread started
+[2026-05-04 08:46:31] room 1: player 'Ali' joined (1/4)
+[2026-05-04 08:46:34] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 08:46:34] room 1: lobby timer started
+[2026-05-04 08:47:34] room 1: game starting with 2 players
+[2026-05-04 08:47:34] room 1: game session started (child pid 2672935)
+[2026-05-04 08:48:10] Admin: list players
+[2026-05-04 08:48:58] room 1: game session ended
+[2026-05-04 08:48:58] room 1: reset and ready for new players
+[2026-05-04 08:49:35] Admin: shutdown confirmed - server exiting
+[2026-05-04 08:49:35] === Server stopped ===
+[2026-05-04 08:49:38] === Server started ===
+[2026-05-04 08:49:38] server listening on port 3030
+[2026-05-04 08:49:38] room 1 watcher thread started
+[2026-05-04 08:49:38] room 2 watcher thread started

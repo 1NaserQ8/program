@@ -2,10 +2,14 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <errno.h>
+#include <time.h>
 #include "csapp.h"
 #include "session.h"
 #include "game.h"
 #include "questions.h"
+
+#define QUESTION_TIMER_SECS 60
 
 typedef struct {
     int idx;
@@ -13,6 +17,7 @@ typedef struct {
     rio_t *rio;
     Question *question;
     int *connected;
+    int *answered;
     int *answers_rem;
     pthread_mutex_t *mtx;
     sem_t *all_done;
@@ -48,6 +53,7 @@ void *answer_reader_fn(void *arg) {
             if (ans == 'A' || ans == 'B' || ans == 'C' || ans == 'D') {
                 pthread_mutex_lock(a->mtx);
                 handle_player_answer(a->players, a->idx, buffer, a->question);
+                *a->answered = 1;
                 (*a->answers_rem)--;
                 int rem = *a->answers_rem;
                 pthread_mutex_unlock(a->mtx);
@@ -79,7 +85,14 @@ void run_game_session(Player players[], int player_count,
     for (q = 0; q < num_q; q++) {
 
         send_question(players, player_count, &questions[q]);
+        char timer_msg[64];
+        snprintf(timer_msg, sizeof(timer_msg),
+            "INFO|You have %d seconds to answer.\n", QUESTION_TIMER_SECS);
+        for (i = 0; i < player_count; i++)
+            Rio_writen(players[i].fd, timer_msg, strlen(timer_msg));
+
         int connected[MAX_PLAYERS];
+        int answered[MAX_PLAYERS];
         int answers_rem = player_count;
         pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
         sem_t all_done;
@@ -89,20 +102,47 @@ void run_game_session(Player players[], int player_count,
 
         for (i = 0; i < player_count; i++) {
             connected[i] = 1;
+            answered[i] = 0;
             args[i].idx = i;
             args[i].players = players;
             args[i].rio = &rios[i];
             args[i].question = &questions[q];
             args[i].connected = connected;
+            args[i].answered = &answered[i];
             args[i].answers_rem = &answers_rem;
             args[i].mtx = &mtx;
             args[i].all_done = &all_done;
             pthread_create(&tids[i], NULL, answer_reader_fn, &args[i]);
         }
-        sem_wait(&all_done);
+
+        struct timespec deadline;
+        clock_gettime(CLOCK_REALTIME, &deadline);
+        deadline.tv_sec += QUESTION_TIMER_SECS;
+        int timed_out = (sem_timedwait(&all_done, &deadline) != 0 && errno == ETIMEDOUT);
+
+        /* Cancel any threads still blocking on Rio_readlineb */
+        for (i = 0; i < player_count; i++)
+            pthread_cancel(tids[i]);
 
         for (i = 0; i < player_count; i++)
             pthread_join(tids[i], NULL);
+
+        /* For players who timed out: reset rio_t, drain socket, notify client */
+        if (timed_out) {
+            for (i = 0; i < player_count; i++) {
+                if (connected[i] && !answered[i]) {
+                    rios[i].rio_cnt = 0;
+                    rios[i].rio_bufptr = rios[i].rio_buf;
+                    int sock_flags = fcntl(players[i].fd, F_GETFL);
+                    fcntl(players[i].fd, F_SETFL, sock_flags | O_NONBLOCK);
+                    char drain[256];
+                    while (recv(players[i].fd, drain, sizeof(drain), 0) > 0);
+                    fcntl(players[i].fd, F_SETFL, sock_flags);
+                    Rio_writen(players[i].fd,
+                        "TIMEOUT|Time is up! Moving to next question.\n", 45);
+                }
+            }
+        }
 
         pthread_mutex_destroy(&mtx);
         sem_destroy(&all_done);

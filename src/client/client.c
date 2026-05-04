@@ -106,6 +106,7 @@ static void print_server_msg(const char *buf) {
 
 int need_answer = 0;
 int server_dead = 0;
+int question_timed_out = 0;
 pthread_mutex_t c_mtx = PTHREAD_MUTEX_INITIALIZER;
 sem_t c_sem;
 
@@ -139,6 +140,12 @@ void *socket_reader_fn(void *arg) {
             sem_post(&c_sem);
             fclose(stdin);
             return NULL;
+        } else if (strncmp(buf, "TIMEOUT|", 8) == 0) {
+            printf("\n  ⏰ " ANSI_RED "Time is up! Moving to next question.\n" ANSI_RESET);
+            fflush(stdout);
+            pthread_mutex_lock(&c_mtx);
+            question_timed_out = 1;
+            pthread_mutex_unlock(&c_mtx);
         } else {
             print_server_msg(buf);
         }
@@ -196,6 +203,13 @@ int main(int argc, char **argv)
         //Abbas: checking for taking answer from the user
         if (fgets(answer, sizeof(answer), stdin) == NULL)
             break;
+
+        pthread_mutex_lock(&c_mtx);
+        int to = question_timed_out;
+        question_timed_out = 0;
+        pthread_mutex_unlock(&c_mtx);
+        if (to)
+            continue;
 
         //Abbas: taking answer and sending it to the server
         build_answer(sendbuf, toupper((unsigned char)answer[0]));
