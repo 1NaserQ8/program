@@ -112,3 +112,59 @@ void reset_room(Room *room) {
 
     pthread_mutex_unlock(&room->room_lock);
 }
+// Gets the player index by file descriptor.
+int get_player_index(Room *room, int player_fd) {
+    pthread_mutex_lock(&room->room_lock);
+
+    for (int i = 0; i < room->player_count; i++) {
+        if (room->players[i].fd == player_fd) {
+            pthread_mutex_unlock(&room->room_lock);
+            return i;
+        }
+    }
+
+    pthread_mutex_unlock(&room->room_lock);
+    return -1;
+}
+
+// Checks if all rooms are full.
+int all_rooms_full(Room rooms[]) {
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        pthread_mutex_lock(&rooms[i].room_lock);
+        int full = (rooms[i].player_count >= MAX_PLAYERS_PER_ROOM);
+        pthread_mutex_unlock(&rooms[i].room_lock);
+
+        if (!full) return 0;
+    }
+    return 1;
+}
+
+// Finds which room a player belongs to by their file descriptor.
+int find_player_room(Room rooms[], int player_fd) {
+    for (int i = 0; i < MAX_ROOMS; i++) {
+        pthread_mutex_lock(&rooms[i].room_lock);
+
+        for (int j = 0; j < rooms[i].player_count; j++) {
+            if (rooms[i].players[j].fd == player_fd) {
+                pthread_mutex_unlock(&rooms[i].room_lock);
+                return rooms[i].room_id;
+            }
+        }
+
+        pthread_mutex_unlock(&rooms[i].room_lock);
+    }
+    return -1;
+}
+
+// Broadcasts a message to all players in a specific room.
+void broadcast_to_room(Room *room, const char *msg) {
+    pthread_mutex_lock(&room->room_lock);
+
+    for (int i = 0; i < room->player_count; i++) {
+        if (room->players[i].fd > 0) {
+            write(room->players[i].fd, msg, strlen(msg));
+        }
+    }
+
+    pthread_mutex_unlock(&room->room_lock);
+}
