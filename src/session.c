@@ -13,6 +13,7 @@
 
 typedef struct {
     int idx;
+    int player_count;
     Player *players;
     rio_t *rio;
     Question *question;
@@ -33,7 +34,14 @@ void *answer_reader_fn(void *arg) {
         // Ali: Handling last player in the game
         if (n <= 0) {
             printf("Player %s disconnected\n", a->players[a->idx].nickname);
+            char disc_msg[MAXLINE];
+            snprintf(disc_msg, sizeof(disc_msg),
+                     "INFO|%s disconnected\n", a->players[a->idx].nickname);
             pthread_mutex_lock(a->mtx);
+            for (int j = 0; j < a->player_count; j++) {
+                if (j != a->idx && a->connected[j])
+                    Rio_writen(a->players[j].fd, disc_msg, strlen(disc_msg));
+            }
             a->players[a->idx].active = 0;
             a->connected[a->idx] = 0;
             (*a->answers_rem)--;
@@ -104,6 +112,7 @@ void run_game_session(Player players[], int player_count,
             connected[i] = 1;
             answered[i] = 0;
             args[i].idx = i;
+            args[i].player_count = player_count;
             args[i].players = players;
             args[i].rio = &rios[i];
             args[i].question = &questions[q];
@@ -163,11 +172,15 @@ void run_game_session(Player players[], int player_count,
         if (player_count <= 1) {
             if (player_count == 1)
                 announce_winner(players, player_count);
+            for (i = 0; i < player_count; i++)
+                Rio_writen(players[i].fd, "SESSION|Ended\n", 14);
             printf("Game session ended\n");
             return;
         }
     }
 
     announce_winner(players, player_count);
+    for (i = 0; i < player_count; i++)
+        Rio_writen(players[i].fd, "SESSION|Ended\n", 14);
     printf("Game session ended\n");
 }

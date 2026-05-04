@@ -64,6 +64,17 @@ static void print_server_msg(const char *buf) {
             } else {
                 printf("  ✦  " ANSI_YELLOW "%s\n" ANSI_RESET, content);
             }
+        } else if (strstr(content, "disconnected")) {
+            char name[MAXLINE];
+            char *p = strstr(content, " disconnected");
+            if (p) {
+                size_t len = (size_t)(p - content);
+                strncpy(name, content, len);
+                name[len] = '\0';
+                printf("  ✦  " ANSI_BLUE "%s" ANSI_RESET " " ANSI_RED "disconnected\n" ANSI_RESET, name);
+            } else {
+                printf("  ✦  " ANSI_RED "%s\n" ANSI_RESET, content);
+            }
         } else if (strstr(content, "starting") || strstr(content, "Starting")) {
             printf("\n  🎮 " ANSI_BOLD ANSI_YELLOW "%s\n\n" ANSI_RESET, content);
         } else if (strstr(content, "seconds") || strstr(content, "starts in")) {
@@ -110,7 +121,8 @@ int question_timed_out = 0;
 pthread_mutex_t c_mtx = PTHREAD_MUTEX_INITIALIZER;
 sem_t c_sem;
 
-typedef struct { int clientfd; rio_t *rio; } ReaderArg;
+typedef struct { int clientfd; rio_t *rio; pthread_t main_tid; } ReaderArg;
+
 void *socket_reader_fn(void *arg) {
     ReaderArg *ra = (ReaderArg *)arg;
     char buf[MAXLINE];
@@ -131,6 +143,15 @@ void *socket_reader_fn(void *arg) {
             need_answer = 1;
             pthread_mutex_unlock(&c_mtx);
             sem_post(&c_sem);
+        } else if (strncmp(buf, "SESSION|", 8) == 0) {
+            printf("\n  ✅ " ANSI_GREEN "Session Ended\n" ANSI_RESET);
+            fflush(stdout);
+            pthread_mutex_lock(&c_mtx);
+            server_dead = 1;
+            pthread_mutex_unlock(&c_mtx);
+            sem_post(&c_sem);
+            pthread_cancel(ra->main_tid);
+            return NULL;
         } else if (strncmp(buf, "SERVER|", 7) == 0) {
             printf("\n  🔴 " ANSI_RED "Server disconnected\n" ANSI_RESET);
             fflush(stdout);
@@ -138,7 +159,7 @@ void *socket_reader_fn(void *arg) {
             server_dead = 1;
             pthread_mutex_unlock(&c_mtx);
             sem_post(&c_sem);
-            fclose(stdin);
+            pthread_cancel(ra->main_tid);
             return NULL;
         } else if (strncmp(buf, "TIMEOUT|", 8) == 0) {
             printf("\n  ⏰ " ANSI_RED "Time is up! Moving to next question.\n" ANSI_RESET);
@@ -154,7 +175,7 @@ void *socket_reader_fn(void *arg) {
     server_dead = 1;
     pthread_mutex_unlock(&c_mtx);
     sem_post(&c_sem);
-    fclose(stdin);
+    pthread_cancel(ra->main_tid);
     return NULL;
 }
 
@@ -184,12 +205,13 @@ int main(int argc, char **argv)
 
     build_join(sendbuf, nickname); //Abbas: it sends a buf and player nickname
     Rio_writen(clientfd, sendbuf, strlen(sendbuf));
-    ReaderArg ra = {clientfd, &rio};
+    ReaderArg ra = {clientfd, &rio, pthread_self()};
     pthread_t reader_tid;
     pthread_create(&reader_tid, NULL, socket_reader_fn, &ra);
 
     //Abbas: Main client loop: wait for server to need an answer, read stdin, send it
     sem_init(&c_sem, 0, 0);
+    int skip_next_sem = 0;
     while (!server_dead) {
         sem_wait(&c_sem);
         pthread_mutex_lock(&c_mtx);
@@ -200,6 +222,11 @@ int main(int argc, char **argv)
         need_answer = 0;
         pthread_mutex_unlock(&c_mtx);
 
+        if (skip_next_sem) {
+            skip_next_sem = 0;
+            continue;
+        }
+
         //Abbas: checking for taking answer from the user
         if (fgets(answer, sizeof(answer), stdin) == NULL)
             break;
@@ -208,8 +235,13 @@ int main(int argc, char **argv)
         int to = question_timed_out;
         question_timed_out = 0;
         pthread_mutex_unlock(&c_mtx);
-        if (to)
+
+        if (to) {
+            build_answer(sendbuf, toupper((unsigned char)answer[0]));
+            Rio_writen(clientfd, sendbuf, strlen(sendbuf));
+            skip_next_sem = 1;
             continue;
+        }
 
         //Abbas: taking answer and sending it to the server
         build_answer(sendbuf, toupper((unsigned char)answer[0]));
