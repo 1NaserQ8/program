@@ -205,3 +205,39 @@
 [2026-05-04 09:24:18] room 1: lobby timer started
 [2026-05-04 09:24:19] room 1: player 'Abbas' disconnected
 [2026-05-04 09:24:19] room 1: lobby timer cancelled (too few players)
+[2026-05-04 09:26:30] room 1: player 'Abbas' joined (2/4)
+[2026-05-04 09:26:30] room 1: lobby timer started
+[2026-05-04 09:27:30] room 1: game starting with 2 players
+[2026-05-04 09:27:30] room 1: game session started (child pid 2682533)
+[2026-05-04 09:28:51] room 1: game session ended
+[2026-05-04 09:28:51] room 1: reset and ready for new players
+[2026-05-04 10:19:23] Admin: shutdown confirmed - server exiting
+[2026-05-04 10:19:23] === Server stopped ===
+[2026-05-04 10:19:29] === Server started ===
+[2026-05-04 10:19:29] server listening on port 3030
+[2026-05-04 10:19:29] room 1 watcher thread started
+[2026-05-04 10:19:29] room 2 watcher thread started
+[2026-05-04 10:19:29] room 3 watcher thread started
+[2026-05-04 10:19:29] room 4 watcher thread started
+[2026-05-04 10:19:29] room 5 watcher thread started
+[2026-05-04 10:19:29] room 6 watcher thread started
+[2026-05-04 10:19:29] room 7 watcher thread started
+[2026-05-04 10:19:29] room 8 watcher thread started
+[2026-05-04 10:19:29] room 9 watcher thread started
+[2026-05-04 10:19:29] room 10 watcher thread started
+[2026-05-04 10:19:31] Admin: list rooms
+[2026-05-04 10:20:32] Admin: shutdown confirmed - server exiting
+[2026-05-04 10:20:32] === Server stopped ===
+[2026-05-04 10:21:29] === Server started ===
+[2026-05-04 10:21:29] server listening on port 3030
+[2026-05-04 10:21:29] room 1 watcher thread started
+[2026-05-04 10:21:29] room 2 watcher thread started
+[2026-05-04 10:21:29] room 3 watcher thread started
+[2026-05-04 10:21:29] room 4 watcher thread started
+[2026-05-04 10:21:29] room 5 watcher thread started
+[2026-05-04 10:21:29] room 6 watcher thread started
+[2026-05-04 10:21:29] room 7 watcher thread started
+[2026-05-04 10:21:29] room 8 watcher thread started
+[2026-05-04 10:21:29] room 9 watcher thread started
+[2026-05-04 10:21:29] room 10 watcher thread started
+[2026-05-04 10:21:35] Admin: list rooms

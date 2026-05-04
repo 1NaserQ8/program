@@ -5,7 +5,7 @@
 #include <pthread.h>
 
 #define MAX_NAME 64
-#define MAX_PLAYERS_PER_ROOM 4
+#define MAX_PLAYERS_PER_ROOM 6
 #define MAX_ROOMS 16
 #define FINAL_RESULT_LEN 128
 #define QUESTION_TIMEOUT 10 /* seconds */

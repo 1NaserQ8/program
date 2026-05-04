@@ -12,7 +12,7 @@
 #include "log.h"    //Abbas: logging module
 #include "admin.h"  //Abbas: admin command module
 
-#define NUM_ROOMS       2
+#define NUM_ROOMS       10
 #define LOBBY_DURATION  60
 #define SERVER_DISC_MSG "SERVER|Disconnected\n"
 

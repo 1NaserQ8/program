@@ -5,7 +5,7 @@
 #include "questions.h"
 
 //Abbas: Maximum number of players allowed in one game session
-#define MAX_PLAYERS 5
+#define MAX_PLAYERS 6
 
 //Abbas: Minimum number of players required to start the game
 #define REQUIRED_PLAYERS 2
