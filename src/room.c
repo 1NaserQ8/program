@@ -3,9 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 
-// Initializes all rooms before the server starts.
-void init_rooms(Room rooms[]) {
-    for (int i = 0; i < MAX_ROOMS; i++) {
+/* Initializes num_rooms rooms before the server starts. */
+void init_rooms(Room rooms[], int num_rooms) {
+    for (int i = 0; i < num_rooms; i++) {
         rooms[i].room_id = i + 1;
         rooms[i].player_count = 0;
         rooms[i].current_question = 0;
@@ -16,9 +16,9 @@ void init_rooms(Room rooms[]) {
     }
 }
 
-// Adds a player to the first open room using mutex protection.
-int add_player_to_room(Room rooms[], int player_fd, const char *player_name) {
-    for (int i = 0; i < MAX_ROOMS; i++) {
+/* Adds a player to the first open room using mutex protection. */
+int add_player_to_room(Room rooms[], int num_rooms, int player_fd, const char *player_name) {
+    for (int i = 0; i < num_rooms; i++) {
         pthread_mutex_lock(&rooms[i].room_lock);
 
         if (rooms[i].player_count < MAX_PLAYERS_PER_ROOM && rooms[i].is_running == 0) {
@@ -43,24 +43,19 @@ int add_player_to_room(Room rooms[], int player_fd, const char *player_name) {
     return -1;
 }
 
-// Updates a player's score safely if the answer is correct and on time.
+/* Updates a player's score safely if the answer is correct and on time. */
 void update_score(Room *room, int player_index, char answer, char correct_answer) {
     pthread_mutex_lock(&room->room_lock);
 
     if (player_index >= 0 && player_index < room->player_count) {
         if (room->players[player_index].active) {
-            if (answer >= 'a' && answer <= 'z') {
+            if (answer >= 'a' && answer <= 'z')
                 answer = answer - 32;
-            }
-
-            if (correct_answer >= 'a' && correct_answer <= 'z') {
+            if (correct_answer >= 'a' && correct_answer <= 'z')
                 correct_answer = correct_answer - 32;
-            }
-
             if (!is_answer_late(room->players[player_index].answer_start_time)) {
-                if (answer == correct_answer) {
+                if (answer == correct_answer)
                     room->players[player_index].score++;
-                }
             }
         }
     }
@@ -68,31 +63,24 @@ void update_score(Room *room, int player_index, char answer, char correct_answer
     pthread_mutex_unlock(&room->room_lock);
 }
 
-// Checks if an answer is late based on QUESTION_TIMEOUT.
+/* Checks if an answer is late based on QUESTION_TIMEOUT. */
 int is_answer_late(time_t start_time) {
     time_t now = time(NULL);
-
-    if (difftime(now, start_time) > QUESTION_TIMEOUT) {
+    if (difftime(now, start_time) > QUESTION_TIMEOUT)
         return 1;
-    }
-
     return 0;
 }
 
-// Starts the question timer for every player in the room.
+/* Starts the question timer for every player in the room. */
 void start_question_timer(Room *room) {
     pthread_mutex_lock(&room->room_lock);
-
     time_t now = time(NULL);
-
-    for (int i = 0; i < room->player_count; i++) {
+    for (int i = 0; i < room->player_count; i++)
         room->players[i].answer_start_time = now;
-    }
-
     pthread_mutex_unlock(&room->room_lock);
 }
 
-// Resets room data after the game ends.
+/* Resets room data after the game ends. */
 void reset_room(Room *room) {
     pthread_mutex_lock(&room->room_lock);
 
@@ -112,59 +100,52 @@ void reset_room(Room *room) {
 
     pthread_mutex_unlock(&room->room_lock);
 }
-// Gets the player index by file descriptor.
+
+/* Gets the player index by file descriptor. */
 int get_player_index(Room *room, int player_fd) {
     pthread_mutex_lock(&room->room_lock);
-
     for (int i = 0; i < room->player_count; i++) {
         if (room->players[i].fd == player_fd) {
             pthread_mutex_unlock(&room->room_lock);
             return i;
         }
     }
-
     pthread_mutex_unlock(&room->room_lock);
     return -1;
 }
 
-// Checks if all rooms are full.
-int all_rooms_full(Room rooms[]) {
-    for (int i = 0; i < MAX_ROOMS; i++) {
+/* Checks if all rooms are full. */
+int all_rooms_full(Room rooms[], int num_rooms) {
+    for (int i = 0; i < num_rooms; i++) {
         pthread_mutex_lock(&rooms[i].room_lock);
         int full = (rooms[i].player_count >= MAX_PLAYERS_PER_ROOM);
         pthread_mutex_unlock(&rooms[i].room_lock);
-
         if (!full) return 0;
     }
     return 1;
 }
 
-// Finds which room a player belongs to by their file descriptor.
-int find_player_room(Room rooms[], int player_fd) {
-    for (int i = 0; i < MAX_ROOMS; i++) {
+/* Finds which room a player belongs to by their file descriptor. */
+int find_player_room(Room rooms[], int num_rooms, int player_fd) {
+    for (int i = 0; i < num_rooms; i++) {
         pthread_mutex_lock(&rooms[i].room_lock);
-
         for (int j = 0; j < rooms[i].player_count; j++) {
             if (rooms[i].players[j].fd == player_fd) {
                 pthread_mutex_unlock(&rooms[i].room_lock);
                 return rooms[i].room_id;
             }
         }
-
         pthread_mutex_unlock(&rooms[i].room_lock);
     }
     return -1;
 }
 
-// Broadcasts a message to all players in a specific room.
+/* Broadcasts a message to all players in a specific room. */
 void broadcast_to_room(Room *room, const char *msg) {
     pthread_mutex_lock(&room->room_lock);
-
     for (int i = 0; i < room->player_count; i++) {
-        if (room->players[i].fd > 0) {
+        if (room->players[i].fd > 0)
             write(room->players[i].fd, msg, strlen(msg));
-        }
     }
-
     pthread_mutex_unlock(&room->room_lock);
 }
