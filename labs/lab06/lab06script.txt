@@ -1,0 +1,116 @@
+Script started on 2026-03-04 09:38:36+03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="120" LINES="30"]
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ git cloen[K[Kne [K [7mgit@github.com:CS223-Spring26/lab06-1NaserQ8.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit@github.com:CS223-Spring26/lab06-1NaserQ8.git
+[?2004lCloning into 'lab06-1NaserQ8'...
+The authenticity of host 'github.com (20.233.83.145)' can't be established.
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? no
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ ls
+[?2004l[0m[01;34mcs223[0m  lab06script.txt
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ fr[K[Kcd cs223/
+[?2004l[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ ls
+[?2004l[0m[01;34mlab04-1NaserQ8[0m  [01;34mlab05-1NaserQ8[0m
+[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ gt[Kot[K[Kit clone [7mgit@github.com:CS223-Spring26/lab06-1NaserQ8.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgit@github.com:CS223-Spring26/lab06-1NaserQ8.git
+[?2004lCloning into 'lab06-1NaserQ8'...
+The authenticity of host 'github.com (20.233.83.145)' can't be established.
+ED25519 key fingerprint is SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'github.com' (ED25519) to the list of known hosts.
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ ls
+[?2004l[0m[01;34mlab04-1NaserQ8[0m  [01;34mlab05-1NaserQ8[0m
+[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ git clone [7mhttps://github.com/CS223-Spring26/lab06-1NaserQ8.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chttps://github.com/CS223-Spring26/lab06-1NaserQ8.git
+[?2004lCloning into 'lab06-1NaserQ8'...
+Username for 'https://github.com': 1NaserQ8
+Password for 'https://1NaserQ8@github.com': 
+remote: Enumerating objects: 3, done.[K
+remote: Counting objects:  33% (1/3)[Kremote: Counting objects:  66% (2/3)[Kremote: Counting objects: 100% (3/3)[Kremote: Counting objects: 100% (3/3), done.[K
+remote: Compressing objects:  50% (1/2)[Kremote: Compressing objects: 100% (2/2)[Kremote: Compressing objects: 100% (2/2), done.[K
+remote: Total 3 (delta 0), reused 2 (delta 0), pack-reused 0 (from 0)[K
+Receiving objects:  33% (1/3)Receiving objects:  66% (2/3)Receiving objects: 100% (3/3)Receiving objects: 100% (3/3), done.
+[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ ls
+[?2004l[0m[01;34mlab04-1NaserQ8[0m  [01;34mlab05-1NaserQ8[0m  [01;34mlab06-1NaserQ8[0m
+[?2004h]0;naser@Naser: ~/cs223[01;32mnaser@Naser[00m:[01;34m~/cs223[00m$ cd lab06-1NaserQ8/
+[?2004l[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ ls
+[?2004lmeasure.c
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ clear
+[?2004l[H[2J[3J[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ cat measure.c 
+[?2004l#include <stdio.h>
+#include <stdlib.h>
+#include <sys/time.h>
+
+#define N 1000
+
+void initialize(int a[N][N], int n);
+
+int main () {
+  struct timeval tempo1, tempo2;
+  long elapsed_utime;
+  long elapsed_useconds;
+  double t = 0.0;
+  int a[N][N], i, j, tmp;
+
+  initialize(a, 1);
+
+  gettimeofday(&tempo1, NULL);
+  for (i=0; i<N; i++)
+    for (j=0; j<N; j++)
+      tmp = a[i][j];
+  gettimeofday(&tempo2, NULL);
+  elapsed_useconds = tempo2.tv_usec - tempo1.tv_usec;
+  printf("Time for accessing a[i][j] is %ld microseconds\n", elapsed_useconds);
+
+  gettimeofday(&tempo1, NULL);
+  for (i=0; i<N; i++)
+    for (j=0; j<N; j++)
+      tmp = a[j][i];
+  gettimeofday(&tempo2, NULL);
+  elapsed_useconds = tempo2.tv_usec - tempo1.tv_usec;
+  printf("Time for accessing a[j][i] is %ld microseconds\n", elapsed_useconds);
+
+  return 0;
+}
+
+void initialize(int a[N][N], int n) {
+  int i, j;
+  for (i=0; i<N; i++)
+    for (j=0; j<N; j++)
+      a[i][j] = n;
+}
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ gcc measure.c [K[K[K[K[K[K[K[K[K[Kmeasure.c -o measure.c [K[K[K
+[?2004l[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ ./measure 
+[?2004lTime for accessing a[i][j] is 1786 microseconds
+Time for accessing a[j][i] is 2088 microseconds
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ git add  [Kmeasure [K.c 
+[?2004l[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ git add measure.c [K[K[K
+[?2004l[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ [K]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ git commit m[K
+[?2004lhint: Waiting for your editor to close the file... [?2004h[?1049h[22;0;0t[1;41r(B[m[4l[?7h[39;49m[?1h=[?1h=[?25l[39;49m(B[m[H[2J[39;32H(B[0;7m[ Reading... ](B[m[39;30H(B[0;7m[ Read 10 lines ](B[m[H(B[0;7m        /home/naser/cs223/lab06-1NaserQ8/.git/COMMIT_EDITMSG                [1;75H(B[m[40d(B[0;7m^G(B[m Help[40;16H(B[0;7m^O(B[m Write Out   (B[0;7m^W(B[m Where Is    (B[0;7m^K(B[m Cut[40;61H(B[0;7m^T(B[m Execute[41d(B[0;7m^X(B[m Exit[41;16H(B[0;7m^R(B[m Read File   (B[0;7m^\(B[m Replace     (B[0;7m^U(B[m Paste[61G(B[0;7m^J(B[m Justify[3d[36m# Please enter the commit message for your changes. Lines starting[4d# with '#' will be ignored, and an empty message aborts the commit.[5d#[6d# On branch main[7d# Your branch is up to date with 'origin/main'.[8d#[9d# Changes to be committed:[10d#[38;5;208m       [36mnew file:   measure[11d#[2d[39m(B[m[?12l[?25h[?25l[1;62H(B[0;7m*[75G(B[m[?12l[?25h[2di[?25l[?12l[?25h[K[?25l[?12l[?25hv[?25l[?12l[?25hi[?25l[?12l[?25hr[?25l[?12l[?25ht[?25l[?12l[?25hu[?25l[?12l[?25ha[?25l[?12l[?25hl[?25l[?12l[?25h [?25l[?12l[?25hm[?25l[?12l[?25he[?25l[?12l[?25hm[?25l[?12l[?25ho[?25l[?12l[?25hr[?25l[?12l[?25hy[?25l[?12l[?25h [?25l[39d(B[0;7mSave modified buffer?                                                       [40;1H Y(B[m Yes[K[41d(B[0;7m N(B[m No  [41;16H (B[0;7m^C(B[m Cancel[K[39;23H[?12l[?25h[?25l[40d(B[0;7m^G(B[m Help[40;20H(B[0;7mM-D(B[m DOS Format     (B[0;7mM-A(B[m Append[40;58H(B[0;7mM-B(B[m Backup File[41d(B[0;7m^C(B[m Cancel[17G   (B[0;7mM-M(B[m Mac Format     (B[0;7mM-P(B[m Prepend[41;58H(B[0;7m^T(B[m Browse[39d(B[0;7mFile Name to Write: /home/naser/cs223/lab06-1NaserQ8/.git/COMMIT_EDITMSG(B[m[?12l[?25h[?25l[39;31H[1K (B[0;7m[ Writing... ](B[m[K[1;62H(B[0;7m [75G(B[m[39;30H(B[0;7m[ Wrote 10 lines ](B[m[J[41d[?12l[?25h[41;1H[?1049l[23;0;0t[?1l>[?2004l[K[main a2fd5ad] virtual memory
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100755 measure
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ git push 
+[?2004lUsername for 'https://github.com': 1NaserQ8
+Password for 'https://1NaserQ8@github.com': 
+Enumerating objects: 4, done.
+Counting objects:  25% (1/4)Counting objects:  50% (2/4)Counting objects:  75% (3/4)Counting objects: 100% (4/4)Counting objects: 100% (4/4), done.
+Delta compression using up to 16 threads
+Compressing objects:  33% (1/3)Compressing objects:  66% (2/3)Compressing objects: 100% (3/3)Compressing objects: 100% (3/3), done.
+Writing objects:  33% (1/3)Writing objects:  66% (2/3)Writing objects: 100% (3/3)Writing objects: 100% (3/3), 2.89 KiB | 1.44 MiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/CS223-Spring26/lab06-1NaserQ8.git
+   43c9b96..a2fd5ad  main -> main
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ ls
+[?2004l[0m[01;32mmeasure[0m  measure.c
+[?2004h]0;naser@Naser: ~/cs223/lab06-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/cs223/lab06-1NaserQ8[00m$ exit
+[?2004lexit
+
+Script done on 2026-03-04 10:33:42+03:00 [COMMAND_EXIT_CODE="0"]
