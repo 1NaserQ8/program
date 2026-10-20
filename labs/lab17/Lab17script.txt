@@ -1,0 +1,295 @@
+Script started on 2026-04-20 09:37:04+03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="120" LINES="30"]
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ git clone [7mhttps://github.com/CS223-Spring26/lab17-1NaserQ8.git[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Chttps://github.com/CS223-Spring26/lab17-1NaserQ8.git
+[?2004lCloning into 'lab17-1NaserQ8'...
+Username for 'https://github.com': 1NaserQ8
+Password for 'https://1NaserQ8@github.com': 
+remote: Enumerating objects: 3, done.[K
+remote: Counting objects:  33% (1/3)[Kremote: Counting objects:  66% (2/3)[Kremote: Counting objects: 100% (3/3)[Kremote: Counting objects: 100% (3/3), done.[K
+remote: Compressing objects:  50% (1/2)[Kremote: Compressing objects: 100% (2/2)[Kremote: Compressing objects: 100% (2/2), done.[K
+remote: Total 3 (delta 0), reused 2 (delta 0), pack-reused 0 (from 0)[K
+Receiving objects:  33% (1/3)Receiving objects:  66% (2/3)Receiving objects: 100% (3/3)Receiving objects: 100% (3/3), done.
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ [K]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ ls
+[?2004lLab15script.txt  Lab15script2.txt  Lab17script.txt  [0m[01;34mcs223[0m  [01;34mlab15-1NaserQ8[0m  [01;34mlab16-1NaserQ8[0m  [01;34mlab17-1NaserQ8[0m  [01;34mproject-ms1-netquiz[0m
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ cd lab17-1NaserQ8/
+[?2004l[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ ls
+[?2004lSupermarket.c
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ cat Supermarket.c 
+[?2004l#include <pthread.h>
+#include <semaphore.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define MaxItems 2 // Maximum items a cashier can scan or a customer can add
+#define BufferSize 2 // Size of the buffer
+
+sem_t empty;
+sem_t full;
+int in = 0;
+int out = 0;
+int buffer[BufferSize];
+pthread_mutex_t mutex;	// maintain mutual exclusion
+
+void *customer(void *pno)
+{   
+    int item;
+    for(int i = 0; i < MaxItems; i++) {
+        item = rand()%100; // Produce a random item
+
+      //  take an action regarding the customer 
+      //  customer must wait for empty slot before adding an item
+        
+        buffer[in] = item;
+        printf("Customer %d: adds Item %d to cashier counter %d\n", *((int *)pno),buffer[in],in);
+        in = (in+1)%BufferSize;
+
+        //  customer must release the cashier counter to be accessed by other customer 
+    }
+}
+void *cashier(void *cno)
+{   
+    for(int i = 0; i < MaxItems; i++) {
+
+      //  take an action regarding the cashier 
+      //  cashier must wait for an item to be added
+
+        int item = buffer[out];
+        printf("Cashier %d: scans Item %d from cashier counter %d\n",*((int *)cno),item, out);
+        out = (out+1)%BufferSize;
+        
+     //  cashier must empty the counter by removing an item  
+    }
+}
+
+int main()
+{   
+
+    pthread_t cust[2],cash[2];
+
+    // Define and initiate your mutex here
+	
+    int a[2] = {1,2}; //Just used for numbering the cashiers and customers
+
+    for(int i = 0; i < 2; i++) {
+        pthread_create(&cust[i], NULL, (void *)customer, (void *)&a[i]);
+    }
+    for(int i = 0; i < 2; i++) {
+        pthread_create(&cash[i], NULL, (void *)cashier, (void *)&a[i]);
+    }
+
+    for(int i = 0; i < 2; i++) {
+        pthread_join(cust[i], NULL);
+    }
+    for(int i = 0; i < 2; i++) {
+        pthread_join(cash[i], NULL);
+    }
+
+  //  clean up here;
+
+
+    return 0;
+    
+}
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ cat Supermarket.c ls[Kcd lab17-1NaserQ8/ls[Kgit clone https://github.com/CS223-Spring26/lab17-1NaserQ8.git[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpush[Kadd Lab16script.txt ls[Kcd lab16-1NaserQ8/ls[Kmv  Lab16script.txt lab16-1NaserQ8/[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cquit[K[2Plscd ..[3Plsgit push [2@commit[C[7@add sharing.c[Cgoodcnt[C[C[C[2Pcsapp.h[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kvi sur[K[K[K[K[K[Kls
+[?2004lSupermarket.c
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ gcc [KA=[K[K Supermarket.c u[K-o super
+[?2004l[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ ./super 
+[?2004lCustomer 1: adds Item 83 to cashier counter 0
+Customer 1: adds Item 86 to cashier counter 1
+Customer 2: adds Item 77 to cashier counter 0
+Customer 2: adds Item 15 to cashier counter 1
+Cashier 1: scans Item 77 from cashier counter 0
+Cashier 1: scans Item 15 from cashier counter 1
+Cashier 2: scans Item 77 from cashier counter 0
+Cashier 2: scans Item 15 from cashier counter 1
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ vi Supermarket.c 
+[?2004l[?1049h[22;0;0t[>4;2m[?1h=[?2004h[?1004h[1;41r[?12h[?12l[22;2t[22;1t[27m[23m[29m[m[H[2J[?25l[41;1H"Supermarket.c" [dos] 75L, 1927B[2;1H▽[6n[2;1H  [3;1HPzz\[0%m[6n[3;1H           [1;1H[>c]10;?]11;?[1;1H[35m#include [m[31m<pthread.h>[m
+[35m#include [m[31m<semaphore.h>[m[2;23H[K[3;1H[35m#include [m[31m<stdlib.h>[m[3;20H[K[4;1H[35m#include [m[31m<stdio.h>[m
+
+[35m#define MaxItems [m[31m2[m[35m [m[34m// Maximum items a cashier can scan or a customer can add[m
+[35m#define BufferSize [m[31m2[m[35m [m[34m// Size of the buffer[m
+
+sem_t empty;
+sem_t full;
+[32mint[m in = [31m0[m;
+[32mint[m out = [31m0[m;
+[32mint[m buffer[BufferSize];
+pthread_mutex_t mutex;  [34m// maintain mutual exclusion[m
+
+[32mvoid[m *customer([32mvoid[m *pno)
+{
+    [32mint[m item;
+    [38;5;130mfor[m([32mint[m i = [31m0[m; i < MaxItems; i++) {[20;9Hitem = rand()%[31m100[m; [34m// Produce a random item[22;7H//  take an action regarding the customer [23;7H//  customer must wait for empty slot before adding an item[m[25;9Hbuffer[in] = item;[26;9Hprintf([31m"Customer [m[35m%d[m[31m: adds Item [m[35m%d[m[31m to cashier counter [m[35m%d\n[m[31m"[m, *(([32mint[m *)pno),buffer[in],in);[27;9Hin = (in+[31m1[m)%BufferSize;[29;9H[34m//  customer must release the cashier counter to be accessed by other customer [m
+    }
+}
+[32mvoid[m *cashier([32mvoid[m *cno)
+{
+    [38;5;130mfor[m([32mint[m i = [31m0[m; i < MaxItems; i++) {[36;7H[34m//  take an action regarding the cashier [37;7H//  cashier must wait for an item to be added[m[39;9H[32mint[m item = buffer[out];[40;9Hprintf([31m"Cashier [m[35m%d[m[31m: scans Item [m[35m%d[m[31m from cashier counter [m[35m%d\n[m[31m"[m,*(([32mint[m *)cno),item, out);[41;139H1,1[11CTop[1;1H[?25h[?4m[?12$p[?25l[41;129H/[1;1H[41;130H0[1;1H[41;131Hc[1;1H[41;132H0[1;1H[41;133Hc[1;1H[41;134H/[1;1H[41;135H0[1;1H[41;136Hc[1;1H[41;137H0[1;1H[41;138Hc[1;1H[41;129H          [1;1H[27m[23m[29m[m[H[2J[1;1H[38;5;81m#include [m[95m<pthread.h>[m
+[38;5;81m#include [m[95m<semaphore.h>[m
+[38;5;81m#include [m[95m<stdlib.h>[m
+[38;5;81m#include [m[95m<stdio.h>[m
+
+[38;5;81m#define MaxItems [m[95m2[m[38;5;81m [m[96m// Maximum items a cashier can scan or a customer can add[m
+[38;5;81m#define BufferSize [m[95m2[m[38;5;81m [m[96m// Size of the buffer[m
+
+sem_t empty;
+sem_t full;
+[38;5;121mint[m in = [95m0[m;
+[38;5;121mint[m out = [95m0[m;
+[38;5;121mint[m buffer[BufferSize];
+pthread_mutex_t mutex;  [96m// maintain mutual exclusion[m
+
+[38;5;121mvoid[m *customer([38;5;121mvoid[m *pno)
+{
+    [38;5;121mint[m item;
+    [93mfor[m([38;5;121mint[m i = [95m0[m; i < MaxItems; i++) {[20;9Hitem = rand()%[95m100[m; [96m// Produce a random item[22;7H//  take an action regarding the customer [23;7H//  customer must wait for empty slot before adding an item[m[25;9Hbuffer[in] = item;[26;9Hprintf([95m"Customer [m[38;5;224m%d[m[95m: adds Item [m[38;5;224m%d[m[95m to cashier counter [m[38;5;224m%d\n[m[95m"[m, *(([38;5;121mint[m *)pno),buffer[in],in);[27;9Hin = (in+[95m1[m)%BufferSize;[29;9H[96m//  customer must release the cashier counter to be accessed by other customer [m
+    }
+}
+[38;5;121mvoid[m *cashier([38;5;121mvoid[m *cno)
+{
+    [93mfor[m([38;5;121mint[m i = [95m0[m; i < MaxItems; i++) {[36;7H[96m//  take an action regarding the cashier [37;7H//  cashier must wait for an item to be added[m[39;9H[38;5;121mint[m item = buffer[out];[40;9Hprintf([95m"Cashier [m[38;5;224m%d[m[95m: scans Item [m[38;5;224m%d[m[95m from cashier counter [m[38;5;224m%d\n[m[95m"[m,*(([38;5;121mint[m *)cno),item, out);[41;139H1,1[11CTop"Supermarket.c" [dos] 75L, 1927B[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;9Hout = (out+[95m1[m)%BufferSize;[41;1H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;6H[96m//  cashier must empty the counter by removing an item  [m[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;5H}[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H}[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[38;5;121mint[m main()[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H{[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;5Hpthread_t cust[[95m2[m],cash[[95m2[m];[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;5H[96m// Define and initiate your mutex here[m[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;5H[38;5;121mint[m a[[95m2[m] = {[95m1[m,[95m2[m}; [96m//Just used for numbering the cashiers and customers[m[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[1;1H[46m{[15;1H}[m[40;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[14;1H}[40;9Hpthread_create(&cust[i], [95mNULL[m, ([38;5;121mvoid[m *)customer, ([38;5;121mvoid[m *)&a[i]);[41;139H[K[41;139H1,5[11CTop[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;5H}[41;139H[K[41;139H1,5[11CTop[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[41;139H[K[41;139H1,9[11CTop[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;9Hpthread_create(&cash[i], [95mNULL[m, ([38;5;121mvoid[m *)cashier, ([38;5;121mvoid[m *)&a[i]);[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;7H[1;40r[40;1H
+[1;41r[40;5H}[41;139H[K[41;139H1,7[11CTop[1;7H[?25h[?25l[41;129Hd[1;7H[?25h[?25l[41;130Hd[1;7H[41;129H  [1;7H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,7[11CTop[1;7H[?25h[?25l[41;129Hd[1;7H[?25h[?25l[41;130Hd[1;7H[41;129H  [1;8H[1;40r[40;1H
+[1;41r[40;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[41;139H[K[41;139H1,8[11CTop[1;8H[?25h[?25l[41;129Hd[1;8H[?25h[?25l[41;130Hd[1;8H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;9Hpthread_join(cust[i], [95mNULL[m);[41;139H[K[41;139H1,9[11CTop[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;5H}[41;139H[K[41;139H1,9[11CTop[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[41;139H[K[41;139H1,9[11CTop[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;9Hpthread_join(cash[i], [95mNULL[m);[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;5H}[41;139H[K[41;139H1,9[11CTop[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,5[11CTop[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;3H[96m//  clean up here;[m[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[1;1H[46m{[13;1H}[m[41;139H[K[41;139H1,1[11CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[12;1H}[40;5H[93mreturn[m [95m0[m;[41;139H[K[41;139H1,5[11CTop[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[41;139H[K[41;139H1,0-1[9CTop[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;7H[1;40r[40;1H
+[1;41r[40;1H}[41;139H[K[41;139H1,7[11CAll[1;7H[?25h[?25l[41;129Hd[1;7H[?25h[?25l[41;130Hd[1;7H[41;129H  [1;7H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,7[11CAll[1;7H[?25h[?25l[41;129Hd[1;7H[?25h[?25l[41;130Hd[1;7H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;8H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,8[11CAll[1;8H[?25h[?25l[41;129Hd[1;8H[?25h[?25l[41;130Hd[1;8H[41;129H  [1;6H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,6[11CAll[1;6H[?25h[?25l[41;129Hd[1;6H[?25h[?25l[41;130Hd[1;6H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,1[11CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,1[11CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[46m{[m  [1;5H[K[2;1H[K[3;5Hpthread_t cust[[95m2[m],cash[[95m2[m];[4;5H[K[5;5H[96m// Define and initiate your mutex here[m
+        [6;9H[K[7;5H[38;5;121mint[m a[[95m2[m] = {[95m1[m,[95m2[m}; [96m//Just used for numbering the cashiers and customers[m[8;5H[K[9;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_create(&cust[i], [95mNULL[m, ([38;5;121mvoid[m *)customer, ([38;5;121mvoid[m *)&a[i]);
+    }[11;9H[K[12;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_create(&cash[i], [95mNULL[m, ([38;5;121mvoid[m *)cashier, ([38;5;121mvoid[m *)&a[i]);
+    }[14;9H[K[15;5H[K[16;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_join(cust[i], [95mNULL[m);
+    }[18;9H[K[19;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_join(cash[i], [95mNULL[m);
+    }[21;9H[K[22;5H[K[23;3H[96m//  clean up here;[m[24;3H[K[26;5H[93mreturn[m [95m0[m;[27;5H[K[28;1H[46m}[m
+[94m~                                                                                                                                                           [1;1H[?25h[?25l[m[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;1H[K[2;5Hpthread_t cust[[95m2[m],cash[[95m2[m];[3;5H[K[4;5H[96m// Define and initiate your mutex here[m
+        [5;9H[K[6;5H[38;5;121mint[m a[[95m2[m] = {[95m1[m,[95m2[m}; [96m//Just used for numbering the cashiers and customers[m[7;5H[K[8;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_create(&cust[i], [95mNULL[m, ([38;5;121mvoid[m *)customer, ([38;5;121mvoid[m *)&a[i]);
+    }[10;9H[K[11;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_create(&cash[i], [95mNULL[m, ([38;5;121mvoid[m *)cashier, ([38;5;121mvoid[m *)&a[i]);
+    }[13;9H[K[14;5H[K[15;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_join(cust[i], [95mNULL[m);
+    }[17;9H[K[18;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {
+        pthread_join(cash[i], [95mNULL[m);
+    }[20;9H[K[21;5H[K[22;3H[96m//  clean up here;[m[23;3H[K[25;5H[93mreturn[m [95m0[m;[26;5H[K[27;1H}
+[94m~                                                                                                                                                           [m[41;141H0-1[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;8H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,1-8[9CAll[1;8H[?25h[?25l[41;129Hd[1;8H[?25h[?25l[41;130Hd[1;8H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;9H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,9[11CAll[1;9H[?25h[?25l[41;129Hd[1;9H[?25h[?25l[41;130Hd[1;9H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;3H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,3[11CAll[1;3H[?25h[?25l[41;129Hd[1;3H[?25h[?25l[41;130Hd[1;3H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;5H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,5[11CAll[1;5H[?25h[?25l[41;129Hd[1;5H[?25h[?25l[41;130Hd[1;5H[41;129H  [1;4H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,4[11CAll[1;4H[?25h[?25l[41;129Hd[1;4H[?25h[?25l[41;130Hd[1;4H[41;129H  [1;1H[1;40r[40;1H
+[1;41r[40;1H[94m~                                                                                                                                                           [m[41;139H[K[41;139H1,1[11CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[1;1H[K[41;1H--No lines in buffer--[41;139H[K[41;139H0,0-1[9CAll[1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;130Hd[1;1H[41;129H  [1;1H[?25h[?25l[41;129Hd[1;1H[?25h[?25l[41;129H [1;1H[?25h[?25l[41;1H[1m-- INSERT --[m[41;13H[K[41;139H0,1[11CAll[1;1H[38;5;81m#include <[?25h[?25l[m[95m<pthread.h>[m
+#incl[2;6H[K[2;6H[?25h[?25l[38;5;81m#include [m[95m<semaphore.h>[m
+[38;5;81m#include <[mstdl[3;15H[K[3;15H[?25h[?25l[95m<stdlib.h>[m
+[38;5;81m#include [m[95m<stdio.h>[m[4;19H[K[5;1H[K[6;1H[38;5;81m#define MaxItems [m[95m2[m[38;5;81m   [m[96m// Maxim[m[6;30H[K[6;30H[?25h[?25l[96mum items a cashier can scan or a customer can add[m
+[38;5;81m#define[m[7;8H[K[7;8H[?25h[?25l[38;5;81m BufferSize [m[95m2[m[38;5;81m [m[96m// Size of the buffer[m[8;1H[K[9;1Hsem_t empty;[9;13H[K[10;1Hsem_t ful[10;10H[K[10;10H[?25h[?25ll;
+[38;5;121mint[m in = [95m0[m;[11;12H[K[12;1H[38;5;121mint[m out = [95m0[m;[12;13H[K[13;1H[38;5;121mint[m buffer[BufferSize];[13;24H[K[14;1Hpthread_m[14;10H[K[14;10H[?25h[?25lutex_t mutex;  [96m// maintain mutual exclusion[m[15;1H[K[16;1H[38;5;121mvoid[m *customer(v[16;17H[K[16;17H[?25h[?25l[38;5;121mvoid[m *pno)
+{[17;2H[K[18;1H    [38;5;121mint[m item;[18;14H[K[19;1H    [93mfor[m([38;5;121mint[m i = [95m0[m; i < MaxItems; i++[19;37H[K[19;37H[?25h[?25l) {
+        item = rand() % [95m100[m; [96m// Produce a random item[m[20;54H[K[21;1H[K[22;1H   [22;4H[K[22;4H[?25h[?25l     sem_wait(&empty);[14C[96m// wait for empty slot[m
+    [23;5H[K[23;5H[?25h[?25l    pthread_mutex_lock(&mutex);    [96m// lock buffer[m[24;1H[K[25;1H        buff[25;13H[K[25;13H[?25h[?25ler[in] = item;
+        printf([95m"Customer [m[38;5;224m%d[m[95m: adds Item [m[38;5;224m%d[m[95m to cas[m[26;49H[K[26;49H[?25h[?25l[95mhier counter [m[38;5;224m%d\n[m[95m"[m,
+               *(([38;5;121mint[m *)pno), buffer[in], i[27;44H[K[27;44H[?25h[?25ln);
+        in = (in + [95m1[m) % BufferSize;[28;36H[K[29;1H[K[30;1H        pthread_mutex_[30;23H[K[30;23H[?25h[?25lunlock(&mutex);  [96m// unlock buffer[m
+        sem_post(&full);     [31;30H[K[31;30H[?25h[?25l[10C[96m// signal item available[m
+    }[32;6H[K[33;1H[K[34;1H    pthread_exit([95mNULL[m[34;22H[K[34;22H[?25h[?25l);
+}[35;2H[K[36;1H[K[37;1H[38;5;121mvoid[m *cashier([38;5;121mvoid[m *cno)[37;25H[K[38;1H{[38;2H[K[39;1H    [93mfor[m([38;5;121mint[m i = [95m0[m; i < MaxItem[39;31H[K[39;31H[?25h[?25ls; i++) {[40;1H[K[1;40r[40;1H
+[1;41r[40;9Hsem_wait(&full);[15C[96m// wait for a[m[41;11H[1m(paste) --[m[41;139H[K[40;53H[?25h[?25l[96mvailable item[40;50H[?25h[?25l[1;40r[m[40;1H
+[1;41r[40;9Hpthread_mutex_lock(&mutex);    [96m// lock buffer[40;26H[?25h[?25l[1;40r[m[1;1H[3M[1;41r[39;9H[38;5;121mint[m item = buffer[out];[40;9Hprintf([95m"Cashier [m[38;5;224m%d[m[95m: scans Item [m[38;5;224m%d[m[95m from cashier counter [m[38;5;224m%d\n[m[95m"[m,[40;19H[?25h[?25l[1;40r[40;1H
+[1;41r[40;16H*(([38;5;121mint[m *)cno), item, out);[?25h[?25l[1;40r[1;1H[3M[1;41r[38;9Hout = (out + [95m1[m) % BufferSize;[40;9Hpthread_mutex_unlock(&mutex);  [96m// unlock buffer[40;8H[?25h[?25l[1;40r[m[40;1H
+[1;41r[40;9Hsem_post(&empty);[14C[96m// signal empty slot[m   [?25h[?25l[1;40r[1;1H[3M[1;41r[38;5H}[40;5Hpthread_exit([95mNULL[m);   [?25h[?25l[1;40r[1;1H[5M[1;41r[36;1H}
+
+[38;5;121mint[m main()
+{
+    pthread_t cust[[95m2[m], cash[[95m2[m];[40;20H[?25h[?25l[1;40r[1;1H[3M[1;41r[39;5Hsem_init(&empty, [95m0[m, BufferSize);
+    sem_init(&full, [95m0[m, [95m0[m);[40;17H[?25h[?25l[1;40r[1;1H[3M[1;41r[38;5Hpthread_mutex_init(&mutex, [95mNULL[m);[40;5H[38;5;121mint[m a[[95m2[m] = {[95m1[m, [95m2[m}; [96m// Just used for numbering the cashiers and customers[m [?25h[?25l[1;40r[1;1H[2M[1;41r[40;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[?25h[?25l[1;40r[40;1H
+[1;41r[40;9Hpthread_create(&cust[i], [95mNULL[m, customer, ([38;5;121mvoid[m *)&a[i]);[40;24H[?25h[?25l[1;40r[1;1H[2M[1;41r[39;5H}
+    [93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[21C[?25h[?25l[1;40r[40;1H
+[1;41r[40;9Hpthread_create(&cash[i], [95mNULL[m, cashier, ([38;5;121mvoid[m *)&a[i]);[40;13H[?25h[?25l[1;40r[1;1H[4M[1;41r[37;5H}[39;5H[93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[40;9Hpthread_join(cust[i], [95mNULL[m);[?25h[?25l[1;40r[1;1H[2M[1;41r[39;5H}
+    [93mfor[m([38;5;121mint[m i = [95m0[m; i < [95m2[m; i++) {[40;19H[?25h[?25l[1;40r[1;1H[4M[1;41r[37;9Hpthread_join(cash[i], [95mNULL[m);
+    }[40;5Hsem_destroy(&empty);[8C[?25h[?25l[41;1H[K[1;40r[1;1H[5M[1;41r[12;1H[46m{[m[36;5Hsem_destroy(&full);
+    pthread_mutex_destroy(&mutex);[39;5H[93mreturn[m [95m0[m;
+[46m}[m[41;139H85,1[10CBot[40;1H[?25h[?25l[41;129H^[[40;1H[41;129H  [40;1H[41;129H^[[40;1H[41;129H  [40;1H[?25h[?25l[41;129H:[40;1H[41;129H[K[41;1H:[?25hX[?25l[41;2H[K[41;2H[?25hx[?25l[?2004l[>4;m"Supermarket.c" [dos] 85L, 2218B written[23;2t[23;1t
+[?1004l[?2004l[?1l>[?1049l[23;0;0t[?25h[>4;m[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ vi Supermarket.c [9P./super[Cgcc Supermarket.c -o super[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[7mgcc Supermarket.c -o market -lpthread[27m[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cgcc Supermarket.c -o market -lpthread
+[?2004l[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ ./ market 
+[?2004lbash: ./: Is a directory
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ ./ market [C[1P
+[?2004lCustomer 1: adds Item 83 to cashier counter 0
+Customer 1: adds Item 86 to cashier counter 1
+Cashier 1: scans Item 83 from cashier counter 0
+Cashier 1: scans Item 86 from cashier counter 1
+Customer 2: adds Item 77 to cashier counter 0
+Customer 2: adds Item 15 to cashier counter 1
+Cashier 2: scans Item 77 from cashier counter 0
+Cashier 2: scans Item 15 from cashier counter 1
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ ls
+[?2004lSupermarket.c  [0m[01;32mmarket[0m  [01;32msuper[0m
+[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ rm super 
+[?2004l[?2004h]0;naser@Naser: ~/lab17-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab17-1NaserQ8[00m$ cd ..
+[?2004l[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ ls
+[?2004lLab15script.txt  Lab15script2.txt  Lab17script.txt  [0m[01;34mcs223[0m  [01;34mlab15-1NaserQ8[0m  [01;34mlab16-1NaserQ8[0m  [01;34mlab17-1NaserQ8[0m  [01;34mproject-ms1-netquiz[0m
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ quit
+[?2004lCommand 'quit' not found, but can be installed with:
+sudo snap install quit
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ stop
+[?2004lCommand 'stop' not found, but there are 20 similar ones.
+[?2004h]0;naser@Naser: ~
