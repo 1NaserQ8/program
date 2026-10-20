@@ -1,0 +1,326 @@
+Script started on 2026-04-29 10:00:27+03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="120" LINES="30"]
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ cd ..
+[?2004l[?2004h]0;naser@Naser: /home[01;32mnaser@Naser[00m:[01;34m/home[00m$ cd naser/[K[K[K[K[K[K![K~
+[?2004l[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ ls
+[?2004lLab20script.txt  [0m[01;34mcs223[0m  [01;34mlab19-1NaserQ8[0m  [01;34mlab20-1NaserQ8[0m  [01;34mproject-ms1-netquiz[0m  [01;34mproject-ms2-netquiz[0m
+[?2004h]0;naser@Naser: ~[01;32mnaser@Naser[00m:[01;34m~[00m$ cd lab19-1NaserQ8/
+[?2004l[?2004h]0;naser@Naser: ~/lab19-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab19-1NaserQ8[00m$ ld
+[?2004lld: no input files
+[?2004h]0;naser@Naser: ~/lab19-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab19-1NaserQ8[00m$ ls
+[?2004lLab19script.txt  [0m[01;32mLambda2[0m  Lambda2.cpp  Parallel.cpp  [01;32mlambda1[0m  lambda1.cpp  [01;34mpasl[0m
+[?2004h]0;naser@Naser: ~/lab19-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab19-1NaserQ8[00m$ mv pasl/ ../lab20-1NaserQ8/
+[?2004l[?2004h]0;naser@Naser: ~/lab19-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab19-1NaserQ8[00m$ cd ../lab20-1NaserQ8/
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ ld
+[?2004lld: no input files
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ ls
+[?2004lMakefile  fib2.cpp  [0m[01;34mpasl[0m
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ c[Kmv fib2.cpp pasl/example/
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ fcd [K[K[K[Kr[Kclear
+[?2004l[H[2J[3J[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ cd o[K
+.git/ pasl/ 
+]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ cd pasl/
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ 
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ l[Ksc[K[Kcd example/
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ ls
+[?2004lLambda2.cpp  Makefile  bhut.cpp  fib2.cpp  nearestneighbors.cpp  [0m[01;32mparallel.opt[0m
+[01;32mLambda2.opt[0m  [01;34m_build[0m    fib.cpp   hull.cpp  parallel.cpp          samplesort.cpp
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ make f[K[K[K[K[K[Kcat fib
+[?2004lcat: fib: No such file or directory
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ cat fib2.cpp 
+[?2004l#include <iostream>
+#include <math.h>
+#include "benchmark.hpp"
+
+/***********************************************************************/
+
+namespace par = pasl::sched::native;
+
+long cutoff = 0;
+
+long fib(long n) {
+  long result = 0;
+  if (n < 2) {
+    result = n;
+  } else {
+    par::fork2([&] {
+      result += fib(n-1);
+    },[&] {
+      result += fib(n-2);
+    });
+  }
+  return result;
+}
+
+int main(int argc, char** argv) {
+  long result = 0;
+  long n = 0;
+
+ auto init = [&] {
+    cutoff = (long)pasl::util::cmdline::parse_or_default_int("cutoff", 25);
+    n = (long)pasl::util::cmdline::parse_or_default_int("n", 24);
+  };
+  auto run = [&] (bool sequential) {
+    result = fib(n);
+  };
+  auto output = [&] {
+    std::cout << "n result " << n << " " << result << std::endl;
+  };
+  auto destroy = [&] {
+    ;
+  };
+  pasl::sched::launch(argc, argv, init, run, output, destroy);
+  return 0;
+}[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ vi fib2.cpp 
+[?2004l[?1049h[22;0;0t[>4;2m[?1h=[?2004h[?1004h[1;30r[?12h[?12l[22;2t[22;1t[27m[23m[29m[m[H[2J[?25l[30;1H"fib2.cpp" [noeol] 44L, 891B[2;1H▽[6n[2;1H  [3;1HPzz\[0%m[6n[3;1H           [1;1H[>c]10;?]11;?[1;1H[35m#include [m[31m<iostream>[m
+[35m#include [m[31m<math.h>[m[2;18H[K[3;1H[35m#include [m[31m"benchmark.hpp"[m[3;25H[K[5;1H[34m/***********************************************************************/[m
+
+[32mnamespace[m par = pasl::sched::native;
+
+[32mlong[m cutoff = [31m0[m;
+
+[32mlong[m fib([32mlong[m n) {
+  [32mlong[m result = [31m0[m;
+  [38;5;130mif[m (n < [31m2[m) {
+    result = n;
+  } [38;5;130melse[m {
+    par::fork2([&] {[17;7Hresult += fib(n-[31m1[m);
+    },[&] {[19;7Hresult += fib(n-[31m2[m);
+    });
+  }
+  [38;5;130mreturn[m result;
+}
+
+[32mint[m main([32mint[m argc, [32mchar[m** argv) {
+  [32mlong[m result = [31m0[m;
+  [32mlong[m n = [31m0[m;
+
+ [32mauto[m init = [&] {[30;103H1,1[11CTop[1;1H[?25h[?4m[?12$p[?25l[30;93Hg[1;1H[30;94Hb[1;1H[30;95H:[1;1H[30;96Hc[1;1H[30;97Hc[1;1H[30;98Hc[1;1H[30;99Hc[1;1H[30;100H/[1;1H[30;101Hc[1;1H[30;102Hc[1;1H[30;93H          [1;1H[?25h[?25l[30;93Hg[1;1H[30;94Hb[1;1H[30;95H:[1;1H[30;96H0[1;1H[30;97Hc[1;1H[30;98H0[1;1H[30;99Hc[1;1H[30;100H/[1;1H[30;101H0[1;1H[30;102Hc[1;1H[30;93H          [1;1H[30;93H/[1;1H[30;94H0[1;1H[30;95Hc[1;1H[30;96H0[1;1H[30;97Hc[1;1H[30;98H/[1;1H[30;99H0[1;1H[30;100Hc[1;1H[30;101H0[1;1H[30;102Hc[1;1H[30;93H          [1;1H[27m[23m[29m[m[H[2J[1;1H[38;5;81m#include [m[95m<iostream>[m
+[38;5;81m#include [m[95m<math.h>[m
+[38;5;81m#include [m[95m"benchmark.hpp"[m
+
+[96m/***********************************************************************/[m
+
+[38;5;121mnamespace[m par = pasl::sched::native;
+
+[38;5;121mlong[m cutoff = [95m0[m;
+
+[38;5;121mlong[m fib([38;5;121mlong[m n) {
+  [38;5;121mlong[m result = [95m0[m;
+  [93mif[m (n < [95m2[m) {
+    result = n;
+  } [93melse[m {
+    par::fork2([&] {[17;7Hresult += fib(n-[95m1[m);
+    },[&] {[19;7Hresult += fib(n-[95m2[m);
+    });
+  }
+  [93mreturn[m result;
+}
+
+[38;5;121mint[m main([38;5;121mint[m argc, [38;5;121mchar[m** argv) {
+  [38;5;121mlong[m result = [95m0[m;
+  [38;5;121mlong[m n = [95m0[m;
+
+ [38;5;121mauto[m init = [&] {[30;103H1,1[11CTop"fib2.cpp" [noeol] 44L, 891B[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;5Hcutoff = ([38;5;121mlong[m)pasl::util::cmdline::parse_or_default_int([95m"cutoff"[m, [95m25[m);[30;1H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;5Hn = ([38;5;121mlong[m)pasl::util::cmdline::parse_or_default_int([95m"n"[m, [95m24[m);[30;103H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H};[30;103H[K[30;103H1,0-1[9CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H[38;5;121mauto[m run = [&] ([38;5;121mbool[m sequential) {[30;103H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;5Hresult = fib(n);[30;103H[K[30;103H1,0-1[9CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H};[30;103H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H[38;5;121mauto[m output = [&] {[30;103H[K[30;103H1,0-1[9CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;5Hstd::cout << [95m"n result "[m << n << [95m" "[m << result << std::endl;[30;103H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H};[30;103H[K[30;103H1,0-1[9CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;3H[38;5;121mauto[m destroy = [&] {[30;103H[K[30;103H1,1[11CTop[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;5H;[30;103H[K[30;103H1,3[11CTop[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;3H};[30;103H[K[30;103H1,3[11CTop[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;3Hpasl::sched::launch(argc, argv, init, run, output, destroy);[30;103H[K[30;103H1,5[11CTop[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;3H[93mreturn[m [95m0[m;[30;103H[K[30;103H1,3[11CTop[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H}[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;7H[1;29r[29;1H
+[1;30r[4;6H[97m[101m)[m[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,7[11CAll[1;7H[?25h[?25l[30;93Hd[1;7H[?25h[?25l[30;94Hd[1;7H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;7H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,7[11CAll[1;7H[?25h[?25l[30;93Hd[1;7H[?25h[?25l[30;94Hd[1;7H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,1[11CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,0-1[9CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,1[11CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,0-1[9CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;2H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,2[11CAll[1;2H[?25h[?25l[30;93Hd[1;2H[?25h[?25l[30;94Hd[1;2H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;5H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,5[11CAll[1;5H[?25h[?25l[30;93Hd[1;5H[?25h[?25l[30;94Hd[1;5H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;3H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,3[11CAll[1;3H[?25h[?25l[30;93Hd[1;3H[?25h[?25l[30;94Hd[1;3H[30;93H  [1;1H[1;29r[29;1H
+[1;30r[29;1H[94m~                                                                                                                       [m[30;103H[K[30;103H1,1[11CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[1;1H[K[30;1H--No lines in buffer--[30;103H[K[30;103H0,0-1[9CAll[1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;94Hd[1;1H[30;93H  [1;1H[?25h[?25l[30;93Hd[1;1H[?25h[?25l[30;93H [1;1H[?25h[?25l[30;1H[1m-- INSERT --[m[30;13H[K[30;103H0,1[11CAll[1;1H[38;5;81m#include [m[95m<iostream>[m
+[38;5;81m#include [m[95m<math.h>[m[2;18H[K[3;1H#inc[3;5H[K[3;5H[?25h[?25l[38;5;81m#include [m[95m"benchmark.hpp"[m[4;1H[K[5;1H[96m/***********************************[m[5;37H[K[5;37H[?25h[?25l[96m************************************/[m[6;1H[K[7;1H[38;5;121mnamespace[m par = pasl:[7;22H[K[7;22H[?25h[?25l:sched::native;[8;1H[K[9;1H[38;5;121mlong[m cutoff = [95m0[m;[9;17H[K[10;1H[K[11;1H[38;5;121mvoid[m atomic_add([38;5;121mlong[m* ptr,[11;27H[K[11;27H[?25h[?25l [38;5;121mlong[m value) {
+  [38;5;121mlong[m old_value;[12;18H[K[13;1H  [38;5;121mlong[m new_value;[13;18H[K[14;1H[K[15;1H  [93mdo[m {[15;7H[K[16;1H   [16;4H[K[16;4H[?25h[?25l old_value = *ptr;
+    new_value = old_value + value;[17;35H[K[18;1H  } whil[18;9H[K[18;9H[?25h[?25l[93mwhile[m (!__sync_bool_compare_and_swap(ptr, old_value, new_value));[19;1H[K[19;1H[?25h[?25l}[20;1H[K[21;1H[38;5;121mlong[m fib([38;5;121mlong[m n) {[21;19H[K[22;1H  [38;5;121mlong[m result = [95m0[m;[22;19H[K[23;1H[K[24;1H  [93mif[m (n < [95m2[m) {[24;15H[K[25;1H    re[25;7H[K[25;7H[?25h[?25lsult = n;
+  } [93melse[m {[26;11H[K[27;1H    par::fork2([&] {[27;21H[K[28;1H      atomic_add(&res[28;22H[K[28;22H[?25h[?25lult, fib(n-[95m1[m));
+    }, [&] {[29;13H[K[1;29r[29;1H
+[1;30r[29;7Hatomic_add(&result, fib(n-[95m2[m)[30;11H[1m(paste) --[m[30;103H[K[29;35H[?25h[?25l);[29;28H[?25h[?25l[1;29r[1;1H[7M[1;30r[23;5H});
+  }
+
+  [93mreturn[m result;
+}
+
+[38;5;121mint[m main([38;5;121mint[m argc, [38;5;121mchar[m** argv) {[29;3H[?25h[?25l[1;29r[1;1H[5M[1;30r[25;3H[38;5;121mlong[m result = [95m0[m;
+  [38;5;121mlong[m n = [95m0[m;
+
+  [38;5;121mauto[m init = [&] {
+    cutoff = ([38;5;121mlong[m)pasl::util::cmdline::parse_or_default_int([95m"cut[?25h[?25loff"[m, [95m25[m);[29;53H[?25h[?25l[1;29r[29;1H
+[1;30r[29;5Hn = ([38;5;121mlong[m)pasl::util::cmdline::parse_or_default_int([95m"n"[m, [95m24[m);[29;7H[?25h[?25l[1;29r[1;1H[4M[1;30r[26;3H};
+
+  [38;5;121mauto[m run = [&] ([38;5;121mbool[m sequential) {
+    result = fib(n);[?25h[?25l[1;29r[1;1H[4M[1;30r[26;3H};
+
+  [38;5;121mauto[m output = [&] {
+    std::cout << [95m"n result "[m << n << [95m" "[m << result << std::endl;[29;13H[?25h[?25l[1;29r[1;1H[3M[1;30r[27;3H};
+
+  [38;5;121mauto[m destroy = [&] {[18C[?25h[?25l[30;1H[K[1;29r[1;1H[6M[1;30r[6;33H[46m{[m[24;5H;
+  };
+
+  pasl::sched::launch(argc, argv, init, run, output, destroy);
+  [93mreturn[m [95m0[m;
+[46m}[m[30;103H60,1[10CBot[29;1H[?25h[?25l[30;93H^[[29;1H[30;93H  [29;1H[30;93H^[[29;1H[30;93H  [29;1H[?25h[?25l[30;93H:[29;1H[30;93H[K[30;1H:[?25hx[?25l[?2004l[>4;m"fib2.cpp" 60L, 1137B written[23;2t[23;1t
+[?1004l[?2004l[?1l>[?1049l[23;0;0t[?25h[>4;m[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ ls
+[?2004lLambda2.cpp  Makefile  bhut.cpp  fib2.cpp  nearestneighbors.cpp  [0m[01;32mparallel.opt[0m
+[01;32mLambda2.opt[0m  [01;34m_build[0m    fib.cpp   hull.cpp  parallel.cpp          samplesort.cpp
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ gcc fibi2[K[K[Kb2.cpp 
+[?2004l[01m[Kfib2.cpp:3:10:[m[K [01;31m[Kfatal error: [m[Kbenchmark.hpp: No such file or directory
+    3 | #include [01;31m[K"benchmark.hpp"[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~[m[K
+compilation terminated.
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ gcc fib2.cpp -o f[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kmake [K[K[K[K[Kmake [K[K[K[K[K[7mmake fib2.opt[27mmake fib2.opt
+[?2004lWarning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+../tools/build//depend.sh ./fib2.cpp _build/cilk > _build/cilk/fib2.cpp.d 
+../tools/build//depend.sh ./fib2.cpp _build/seq > _build/seq/fib2.cpp.d 
+../tools/build//depend.sh ./fib2.cpp _build/opt > _build/opt/fib2.cpp.d 
+../tools/build//depend.sh ./fib2.cpp _build/sta > _build/sta/fib2.cpp.d 
+../tools/build//depend.sh ./fib2.cpp _build/log > _build/log/fib2.cpp.d 
+../tools/build//depend.sh ./fib2.cpp _build/dbg > _build/dbg/fib2.cpp.d 
+Warning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/dbg/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/log/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/sta/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/opt/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/seq/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+Warning: did not find any file named _build/cilk/math.*.d.
+make: *** No rule to make target 'fib2.opt'.  Stop.
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ [7mn result 4 3[27m[1Pn result 4 [K[K[K[K[K[K[K[K[K[K[K[7m./fib2.opt -n 4[27m./fib2.opt -n 4
+[?2004lbash: ./fib2.opt: No such file or directory
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ ./fib2.opt -n 4[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kls
+[?2004lLambda2.cpp  Makefile  bhut.cpp  fib2.cpp  nearestneighbors.cpp  [0m[01;32mparallel.opt[0m
+[01;32mLambda2.opt[0m  [01;34m_build[0m    fib.cpp   hull.cpp  parallel.cpp          samplesort.cpp
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ ls
+[?2004lLambda2.cpp  Makefile  bhut.cpp  fib2.cpp  nearestneighbors.cpp  [0m[01;32mparallel.opt[0m
+[01;32mLambda2.opt[0m  [01;34m_build[0m    fib.cpp   hull.cpp  parallel.cpp          samplesort.cpp
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl/example[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl/example[00m$ cd[K[Kcd ..
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ cd..
+[?2004llcd..: command not found
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ lsc[K ..
+[?2004lMakefile  [0m[01;34mpasl[0m
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ ls
+[?2004lLICENSE  README  README.md  [0m[01;34mchunkedseq[0m  [01;34mexample[0m  [01;34mgraph[0m  [01;34mminicourse[0m  [01;34mparutil[0m  [01;34msched[0m  [01;34msequtil[0m  [01;34mtest[0m  [01;34mtools[0m
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8/pasl[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8/pasl[00m$ cd ..
+[?2004l[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ ls
+[?2004lMakefile  [0m[01;34mpasl[0m
+[?2004h]0;naser@Naser: ~/lab20-1NaserQ8[01;32mnaser@Naser[00m:[01;34m~/lab20-1NaserQ8[00m$ vi Makefile 
+[?2004l[?1049h[22;0;0t[>4;2m[?1h=[?2004h[?1004h[1;30r[?12h[?12l[22;2t[22;1t[27m[23m[29m[m[H[2J[?25l[30;1H"Makefile" 111L, 2614B[2;1H▽[6n[2;1H  [3;1HPzz\[0%m[6n[3;1H           [1;1H[>c]10;?]11;?[2;1H[34m####################################################################[m[2;69H[K[3;1H[34m# Configuration[m[3;16H[K[5;1H[34m# Paths to auxiliary Makefile definitions[m
+
+[36mTOOLS_BUILD_FOLDER[m=../tools/build
+
+
+[34m####################################################################
+# Mandatory options[m
+
+[36mUSE_PTHREADS[m=1
+[36mUSE_MATH[m=1
+
+
+[34m####################################################################
+# Default options[m
+
+[36mUSE_ALLOCATOR[m=
+[36mUSE_HWLOC[m=0
+[36mUSE_NUMA[m=0
+
+[34m# todo activate? USE_ANSI=1[m
+
+[36mUSE_FATAL_ERRORS[m=1
+[36mVERBOSE_MAKE[m=0
+[36mVERBOSE_DEPENDENCIES[m=0[30;103H1,0-1[9CTop[1;1H[?25h[?4m[?12$p[?25l[30;93H/[1;1H[30;94H0[1;1H[30;95Hc[1;1H[30;96H0[1;1H[30;97Hc[1;1H[30;98H/[1;1H[30;99H0[1;1H[30;100Hc[1;1H[30;101H0[1;1H[30;102Hc[1;1H[30;93H          [1;1H[27m[23m[29m[m[H[2J[2;1H[96m####################################################################
+# Configuration
+
+# Paths to auxiliary Makefile definitions[m
+
+[1m[96mTOOLS_BUILD_FOLDER[m=../tools/build
+
+
+[96m####################################################################
+# Mandatory options[m
+
+[1m[96mUSE_PTHREADS[m=1
+[1m[96mUSE_MATH[m=1
+
+
+[96m####################################################################
+# Default options[m
+
+[1m[96mUSE_ALLOCATOR[m=
+[1m[96mUSE_HWLOC[m=0
+[1m[96mUSE_NUMA[m=0
+
+[96m# todo activate? USE_ANSI=1[m
+
+[1m[96mUSE_FATAL_ERRORS[m=1
+[1m[96mVERBOSE_MAKE[m=0
+[1m[96mVERBOSE_DEPENDENCIES[m=0[30;103H1,0-1[9CTop"Makefile" 111L, 2614B[1;1H[?25h[?25l[30;93H~@k[1;1H[30;93H   [2;1H[30;103H2,1  [2;1H[?25h[?25l[30;93H~@k[2;1H[30;93H   [3;1H[30;103H3[3;1H[?25h[?25l[30;93H~@k[3;1H[30;93H   [4;1H[30;103H4,0-1[4;1H[?25h[?25l[30;93H~@k[4;1H[30;93H   [5;1
+
+
+script 2 
+
+ 2RR0;10;1c10;rgb:cccc/cccc/cccc11;rgb:0c0c/0c0c/0c0c12;2$y
+
+
+
+H[30;103H5,1  [5;1H[?25h[?25l[30;93H~@k[5;1H[30;93H   [6;1H[30;103H6,0-1[6;1H[?25h[?25l[30;93H~@k[6;1H[30;93H   [7;1H[30;103H7,1  [7;1H[?25h[?25l[30;93H~@k[7;1H[30;93H   [8;1H[30;103H8,0-1[8;1H[?25h[?25l[30;93H~@k[8;1H[30;93H   [9;1H[30;103H9[9;1H[?25h[?25l[30;93H~@k[9;1H[30;93H   [10;1H[30;103H10,1 [10;1H[?25h[?25l[30;93H~@k[10;1H[30;93H   [11;1H[30;104H1[11;1H[?25h[?25l[30;93H~@k[11;1H[30;93H   [12;1H[30;104H2,0-1[12;1H[?25h[?25l[30;93H~@k[12;
